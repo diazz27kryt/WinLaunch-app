@@ -1,7 +1,6 @@
 /*
  * WinLaunch Optimization catalogue card.
  */
-
 package com.movtery.zalithlauncher.ui.screens.content.download
 
 import androidx.compose.foundation.BorderStroke
@@ -27,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Icon
@@ -54,14 +52,12 @@ fun WinLaunchOptimizationCard(
         tonalElevation = 2.dp
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_rocket_launch_filled),
@@ -69,25 +65,16 @@ fun WinLaunchOptimizationCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "WinLaunch Optimization",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "PURE PERFORMANCE",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Text("WinLaunch Optimization", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("PURE PERFORMANCE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
-
             Text(
-                text = "Только оптимизационные Fabric-моды. Для каждой версии скачиваются свои совместимые файлы.",
+                "Только оптимизационные Fabric-моды. Создаётся отдельный профиль.",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
             )
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -99,51 +86,25 @@ fun WinLaunchOptimizationCard(
                         enabled = !isBusy,
                         onClick = { versionMenuExpanded = true }
                     ) {
-                        Text(
-                            text = "Minecraft $selectedVersion  ▾",
-                            maxLines = 1
-                        )
+                        Text("Minecraft $selectedVersion  ▾", maxLines = 1)
                     }
-                    DropdownMenu(
-                        expanded = versionMenuExpanded,
-                        onDismissRequest = { versionMenuExpanded = false }
-                    ) {
-                        WinLaunchOptimizationPack.supportedGameVersions
-                            .asReversed()
-                            .forEach { version ->
-                                DropdownMenuItem(
-                                    text = { Text("Minecraft $version") },
-                                    onClick = {
-                                        selectedVersion = version
-                                        versionMenuExpanded = false
-                                    }
-                                )
-                            }
+                    DropdownMenu(expanded = versionMenuExpanded, onDismissRequest = { versionMenuExpanded = false }) {
+                        WinLaunchOptimizationPack.supportedGameVersions.asReversed().forEach { version ->
+                            DropdownMenuItem(
+                                text = { Text("Minecraft $version") },
+                                onClick = { selectedVersion = version; versionMenuExpanded = false }
+                            )
+                        }
                     }
                 }
-
-                Button(
-                    enabled = !isBusy,
-                    onClick = { onInstall(selectedVersion) }
-                ) {
-                    Text("Установить")
+                Button(enabled = !isBusy, onClick = { onInstall(selectedVersion) }) {
+                    Text(if (isPreparing) "Готовим…" else "Установить")
                 }
             }
-
             if (isPreparing) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                Text(
-                    text = "Подбираем совместимые моды и готовим сборку…",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Подбираем совместимые моды…", style = MaterialTheme.typography.labelSmall)
             }
-
-            Text(
-                text = "Сборка создаст отдельный профиль и не изменит твои существующие версии. Прирост FPS зависит от устройства и настроек.",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
