@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
@@ -286,11 +288,31 @@ fun DownloadModPackScreen(
         }
     )
 
-    if (backStack.isNotEmpty()) {
-        NestedNavDisplay(
-            ownerKey = key,
-            backStack = backStack,
-            modifier = Modifier.fillMaxSize(),
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (stackTopKey is NormalNavKey.SearchModPack) {
+            WinLaunchOptimizationCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                isBusy = importerViewModel.importOperation != com.movtery.zalithlauncher.viewmodel.ModpackImportOperation.None ||
+                        importerViewModel.isPreparingOptimizationPack,
+                isPreparing = importerViewModel.isPreparingOptimizationPack,
+                onInstall = { gameVersion ->
+                    importerViewModel.importOptimization(
+                        context = context,
+                        gameVersion = gameVersion,
+                        onStart = { eventViewModel.sendKeepScreen(true) },
+                        onStop = { eventViewModel.sendKeepScreen(false) }
+                    )
+                }
+            )
+        }
+
+        if (backStack.isNotEmpty()) {
+            NestedNavDisplay(
+                ownerKey = key,
+                backStack = backStack,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
             onBack = {
                 onBack(backStack)
             },
@@ -337,9 +359,10 @@ fun DownloadModPackScreen(
                     )
                 }
             }
-        )
-    } else {
-        Box(Modifier.fillMaxSize())
+            )
+        } else {
+            Box(Modifier.weight(1f).fillMaxWidth())
+        }
     }
 }
 
