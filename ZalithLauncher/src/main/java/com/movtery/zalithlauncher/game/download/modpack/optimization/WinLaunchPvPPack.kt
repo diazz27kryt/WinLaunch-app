@@ -15,6 +15,7 @@ import com.movtery.zalithlauncher.game.download.addon.platform.PlatformReleaseTy
 import com.movtery.zalithlauncher.game.download.addon.platform.modrinth.MODRINTH_API
 import com.movtery.zalithlauncher.game.download.addon.platform.modrinth.models.ModrinthVersion
 import com.movtery.zalithlauncher.utils.network.httpGetJson
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.Parameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -69,7 +70,13 @@ object WinLaunchPvPPack {
                 }
                 continue
             }
-            resolveRequiredDependencies(version, gameVersion, selected)
+            val previousKeys = selected.keys.toSet()
+            try {
+                resolveRequiredDependencies(version, gameVersion, selected)
+            } catch (e: ClientRequestException) {
+                if (project.required || e.response.status.value != 404) throw e
+                (selected.keys - previousKeys).forEach(selected::remove)
+            }
         }
 
         if (selected.values.none { it.projectId == "sodium" || it.projectId == "AANobbMI" }) {
