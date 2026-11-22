@@ -57,6 +57,8 @@ import com.movtery.zalithlauncher.ui.components.MarqueeText
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.screens.NormalNavKey
 import com.movtery.zalithlauncher.ui.screens.TitledNavKey
+import com.movtery.zalithlauncher.ui.screens.content.download.WinLaunchOptimizationCard
+import com.movtery.zalithlauncher.ui.screens.content.download.WinLaunchPvPPackCard
 import com.movtery.zalithlauncher.ui.screens.content.download.addon.elements.BaseFilterLayout
 import com.movtery.zalithlauncher.viewmodel.AllSupportPackDisplay
 import com.movtery.zalithlauncher.viewmodel.EventViewModel
@@ -163,6 +165,43 @@ fun SearchModPackScreen(
         },
         swapToDownload = swapToDownload,
         extraFilter = {
+            // WinLaunch custom packs appear first; the normal Modrinth catalogue follows.
+            item {
+                WinLaunchPvPPackCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    isBusy = viewModel.importOperation != ModpackImportOperation.None ||
+                        viewModel.isPreparingOptimizationPack || viewModel.isPreparingPvPPack,
+                    isPreparing = viewModel.isPreparingPvPPack,
+                    onInstall = { gameVersion ->
+                        viewModel.importPvPPack(
+                            context = context,
+                            gameVersion = gameVersion,
+                            onStart = { eventViewModel.sendKeepScreen(true) },
+                            onStop = { eventViewModel.sendKeepScreen(false) }
+                        )
+                    }
+                )
+            }
+            item {
+                WinLaunchOptimizationCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    isBusy = viewModel.importOperation != ModpackImportOperation.None ||
+                        viewModel.isPreparingOptimizationPack || viewModel.isPreparingPvPPack,
+                    isPreparing = viewModel.isPreparingOptimizationPack,
+                    onInstall = { gameVersion ->
+                        viewModel.importOptimization(
+                            context = context,
+                            gameVersion = gameVersion,
+                            onStart = { eventViewModel.sendKeepScreen(true) },
+                            onStop = { eventViewModel.sendKeepScreen(false) }
+                        )
+                    }
+                )
+            }
             //新增导入整合包按钮
             item {
                 BaseFilterLayout(
