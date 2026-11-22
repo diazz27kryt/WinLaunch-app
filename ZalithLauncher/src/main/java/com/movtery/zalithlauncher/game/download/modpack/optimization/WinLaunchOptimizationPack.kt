@@ -56,7 +56,7 @@ object WinLaunchOptimizationPack {
         CoreProject("NNAgCjsB", "EntityCulling"),
         CoreProject("nmDcB62a", "ModernFix"),
         CoreProject("51shyZVL", "MoreCulling"),
-        CoreProject("2pG5MtLN", "BadOptimizations")
+        CoreProject("g96Z4WVZ", "BadOptimizations")
     )
 
     private val gson = GsonBuilder().disableHtmlEscaping().create()
