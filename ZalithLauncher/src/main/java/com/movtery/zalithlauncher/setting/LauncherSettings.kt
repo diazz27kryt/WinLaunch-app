@@ -18,7 +18,6 @@
 
 package com.movtery.zalithlauncher.setting
 
-import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.materialkolor.PaletteStyle
@@ -32,12 +31,11 @@ import com.movtery.zalithlauncher.ui.theme.ColorThemeType
 object LauncherSettings : SettingsRegistry() {
     /**
      * 颜色主题色
-     * Android 12+ 默认动态主题色
+     * 默认使用 WinLaunch 黑灰玻璃主题
      */
     val launcherColorTheme = enumSetting(
         "launcherColorTheme",
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) ColorThemeType.DYNAMIC
-        else ColorThemeType.EMBERMIRE
+        ColorThemeType.WINLAUNCH
     )
 
     /**
@@ -53,7 +51,7 @@ object LauncherSettings : SettingsRegistry() {
     /**
      * 启动器UI深色主题
      */
-    val launcherDarkMode = enumSetting("launcherDarkMode", DarkMode.FollowSystem)
+    val launcherDarkMode = enumSetting("launcherDarkMode", DarkMode.Enable)
 
     /**
      * 启动器语言

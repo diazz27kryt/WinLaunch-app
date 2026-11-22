@@ -193,7 +193,7 @@ private fun getSeedColor(context: Context, darkTheme: Boolean): Int {
                     context.resources.getColor(android.R.color.system_accent1_200, context.theme)
                 }
             } else {
-                getPredefinedSeedColor(ColorThemeType.EMBERMIRE, darkTheme)
+                getPredefinedSeedColor(ColorThemeType.WINLAUNCH, darkTheme)
             }
         }
         ColorThemeType.CUSTOM -> LauncherSettings.launcherCustomColor.flow.value
@@ -203,6 +203,7 @@ private fun getSeedColor(context: Context, darkTheme: Boolean): Int {
 
 private fun getPredefinedSeedColor(theme: ColorThemeType, darkTheme: Boolean): Int {
     return when (theme) {
+        ColorThemeType.WINLAUNCH -> if (darkTheme) 0xFFC6C6CD.toInt() else 0xFF55555C.toInt()
         ColorThemeType.EMBERMIRE -> if (darkTheme) 0xFFFFB598.toInt() else 0xFFA63A17.toInt()
         ColorThemeType.VELVET_ROSE -> if (darkTheme) 0xFFF9B2D2.toInt() else 0xFF723D57.toInt()
         ColorThemeType.MISTWAVE -> if (darkTheme) 0xFFCEF3F9.toInt() else 0xFF426469.toInt()
