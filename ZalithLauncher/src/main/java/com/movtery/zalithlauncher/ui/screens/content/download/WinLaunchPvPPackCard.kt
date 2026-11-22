@@ -52,12 +52,12 @@ fun WinLaunchPvPPackCard(
         tonalElevation = 2.dp
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_rocket_launch_filled),
@@ -65,22 +65,15 @@ fun WinLaunchPvPPackCard(
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "WinLaunch PvP Pack",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "FAIR-PLAY CLIENT PACK",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Text("WinLaunch PvP Pack", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text("FAIR-PLAY CLIENT PACK", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
             Text(
-                text = "Оптимизация, визуальные настройки, удобство инвентаря и запись повторов. Без читов, боевых помощников и автоматизации.",
+                "Оптимизация и удобство. Без читов, боевых помощников и автоматизации.",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,38 +88,23 @@ fun WinLaunchPvPPackCard(
                     ) {
                         Text("Minecraft $selectedVersion  ▾", maxLines = 1)
                     }
-                    DropdownMenu(
-                        expanded = versionMenuExpanded,
-                        onDismissRequest = { versionMenuExpanded = false }
-                    ) {
+                    DropdownMenu(expanded = versionMenuExpanded, onDismissRequest = { versionMenuExpanded = false }) {
                         WinLaunchPvPPack.supportedGameVersions.asReversed().forEach { version ->
                             DropdownMenuItem(
                                 text = { Text("Minecraft $version") },
-                                onClick = {
-                                    selectedVersion = version
-                                    versionMenuExpanded = false
-                                }
+                                onClick = { selectedVersion = version; versionMenuExpanded = false }
                             )
                         }
                     }
                 }
                 Button(enabled = !isBusy, onClick = { onInstall(selectedVersion) }) {
-                    Text("Установить")
+                    Text(if (isPreparing) "Готовим…" else "Установить")
                 }
             }
             if (isPreparing) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                Text(
-                    text = "Проверяем совместимость и готовим сборку…",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Text("Проверяем совместимость модов…", style = MaterialTheme.typography.labelSmall)
             }
-            Text(
-                text = "Создаётся отдельный профиль. Состав зависит от доступных стабильных версий модов для выбранного Minecraft.",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
