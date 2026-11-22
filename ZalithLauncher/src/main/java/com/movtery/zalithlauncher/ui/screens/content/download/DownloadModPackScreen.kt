@@ -289,43 +289,6 @@ fun DownloadModPackScreen(
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
-        if (stackTopKey is NormalNavKey.SearchModPack) {
-            WinLaunchPvPPackCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                isBusy = importerViewModel.importOperation != com.movtery.zalithlauncher.viewmodel.ModpackImportOperation.None ||
-                        importerViewModel.isPreparingOptimizationPack ||
-                        importerViewModel.isPreparingPvPPack,
-                isPreparing = importerViewModel.isPreparingPvPPack,
-                onInstall = { gameVersion ->
-                    importerViewModel.importPvPPack(
-                        context = context,
-                        gameVersion = gameVersion,
-                        onStart = { eventViewModel.sendKeepScreen(true) },
-                        onStop = { eventViewModel.sendKeepScreen(false) }
-                    )
-                }
-            )
-            WinLaunchOptimizationCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                isBusy = importerViewModel.importOperation != com.movtery.zalithlauncher.viewmodel.ModpackImportOperation.None ||
-                        importerViewModel.isPreparingOptimizationPack ||
-                        importerViewModel.isPreparingPvPPack,
-                isPreparing = importerViewModel.isPreparingOptimizationPack,
-                onInstall = { gameVersion ->
-                    importerViewModel.importOptimization(
-                        context = context,
-                        gameVersion = gameVersion,
-                        onStart = { eventViewModel.sendKeepScreen(true) },
-                        onStop = { eventViewModel.sendKeepScreen(false) }
-                    )
-                }
-            )
-        }
-
         if (backStack.isNotEmpty()) {
             NestedNavDisplay(
                 ownerKey = key,
