@@ -46,8 +46,8 @@ import com.movtery.zalithlauncher.game.download.modpack.install.ModpackImporter
 import com.movtery.zalithlauncher.game.download.modpack.install.PackNotSupportedException
 import com.movtery.zalithlauncher.game.download.modpack.install.UnsupportedPackReason
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
-import com.movtery.zalith.zalithlauncher.game.download.modpack.optimization.WinLaunchOptimizationPack
-import com.movtery.zalith.zalithlauncher.game.download.modpack.optimization.WinLaunchPvPPack
+import com.movtery.zalithlauncher.game.download.modpack.optimization.WinLaunchOptimizationPack
+import com.movtery.zalithlauncher.game.download.modpack.optimization.WinLaunchPvPPack
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -220,7 +220,7 @@ class ModpackImportViewModel : ViewModel() {
         onStart: () -> Unit = {},
         onStop: () -> Unit = {}
     ) {
-        if (importOperation != ModpackImportOperation.None || isPreparingOptimizationPack) return
+        if (importOperation != ModpackImportOperation.None || isPreparingOptimizationPack || isPreparingPvPPack) return
 
         isPreparingOptimizationPack = true
         onStart()
