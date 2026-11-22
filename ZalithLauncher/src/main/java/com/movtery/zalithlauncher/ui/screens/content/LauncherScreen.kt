@@ -564,14 +564,14 @@ private fun QuickAccessCard(
                 QuickTile(
                     modifier = Modifier.weight(1f),
                     iconRes = R.drawable.ic_star_filled,
-                    text = stringResource(R.string.home_quick_modpacks),
-                    onClick = { onOpen(backStackViewModel.downloadModPackScreen) },
+                    text = stringResource(R.string.download_category_favorites),
+                    onClick = { onOpen(backStackViewModel.downloadFavoritesScreen) },
                 )
                 QuickTile(
                     modifier = Modifier.weight(1f),
                     iconRes = R.drawable.ic_extension_outlined,
-                    text = stringResource(R.string.home_quick_mods),
-                    onClick = { onOpen(backStackViewModel.downloadModScreen) },
+                    text = stringResource(R.string.home_quick_modpacks),
+                    onClick = { onOpen(backStackViewModel.downloadModPackScreen) },
                 )
                 QuickTile(
                     modifier = Modifier.weight(1f),
