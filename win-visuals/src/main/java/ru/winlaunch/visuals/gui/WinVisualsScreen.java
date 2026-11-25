@@ -51,7 +51,8 @@ public class WinVisualsScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         // Own dim, no vanilla blur.
-        int alpha = Math.max(0, Math.min(220, (int) (cfg.backgroundDim * 255f)));\n        g.fill(0, 0, this.width, this.height, (alpha << 24));
+        int alpha = Math.max(0, Math.min(220, (int) (cfg.backgroundDim * 255f)));
+        g.fill(0, 0, this.width, this.height, (alpha << 24));
     }
 
     // ---------------------------------------------------------------- rendering
