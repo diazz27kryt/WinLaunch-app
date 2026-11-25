@@ -32,6 +32,6 @@ public final class Palette {
     public static DustParticleOptions dust(long gameTime, float offset) {
         int c = rgb(gameTime, offset);
         Vector3f v = new Vector3f(((c >> 16) & 0xFF) / 255f, ((c >> 8) & 0xFF) / 255f, (c & 0xFF) / 255f);
-        return new DustParticleOptions(v, VisualsConfig.get().particleSize);
+        return new DustParticleOptions(c, VisualsConfig.get().particleSize);
     }
 }
