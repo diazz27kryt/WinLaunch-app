@@ -57,7 +57,9 @@ object WinLaunchOptimizationPack {
         CoreProject("NNAgCjsB", "EntityCulling"),
         CoreProject("nmDcB62a", "ModernFix"),
         CoreProject("51shyZVL", "MoreCulling"),
-        CoreProject("g96Z4WVZ", "BadOptimizations")
+        CoreProject("g96Z4WVZ", "BadOptimizations"),
+        // Required by the bundled Win Visuals mod.
+        CoreProject("P7dR8mSH", "Fabric API")
     )
 
     private val gson = GsonBuilder().disableHtmlEscaping().create()
@@ -157,6 +159,7 @@ object WinLaunchOptimizationPack {
             zip.putNextEntry(ZipEntry("modrinth.index.json"))
             zip.write(gson.toJson(manifest).toByteArray(Charsets.UTF_8))
             zip.closeEntry()
+            WinVisualsBundle.addTo(zip, context, gameVersion)
         }
 
         packFile

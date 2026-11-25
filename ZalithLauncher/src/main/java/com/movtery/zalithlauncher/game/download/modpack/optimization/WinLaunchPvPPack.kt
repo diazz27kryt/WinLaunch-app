@@ -44,7 +44,9 @@ object WinLaunchPvPPack {
         Project("sodium-extra"),
         Project("appleskin"),
         Project("mouse-tweaks"),
-        Project("replaymod")
+        Project("replaymod"),
+        // Required by the bundled Win Visuals mod.
+        Project("fabric-api")
     )
 
     private val gson = GsonBuilder().disableHtmlEscaping().create()
@@ -134,6 +136,7 @@ object WinLaunchPvPPack {
             zip.putNextEntry(ZipEntry("modrinth.index.json"))
             zip.write(gson.toJson(manifest).toByteArray(Charsets.UTF_8))
             zip.closeEntry()
+            WinVisualsBundle.addTo(zip, context, gameVersion)
         }
         packFile
     }
