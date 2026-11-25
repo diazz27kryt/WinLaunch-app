@@ -17,16 +17,16 @@ import java.util.function.Supplier;
 
 /** Win Visuals settings screen. Opens on Right Shift, custom-drawn glass UI. */
 public class WinVisualsScreen extends Screen {
-    private static final int PANEL_W = 380;
-    private static final int PANEL_H = 244;
-    private static final int SIDEBAR_W = 96;
+    private static final int PANEL_W = 420;
+    private static final int PANEL_H = 284;
+    private static final int SIDEBAR_W = 108;
 
     private static final int BG = 0xE6101420;
     private static final int SIDEBAR = 0xF20B0E18;
     private static final int TEXT = 0xFFE8ECF6;
     private static final int TEXT_DIM = 0xFF8A93AB;
 
-    private static final String[] TABS = {"general", "colors", "trails", "hits", "jumps"};
+    private static final String[] TABS = {"sky", "visuals", "particles", "interface", "settings"};
     private static final int[] PRESETS = {
         0x55AAFF, 0x9B6BFF, 0xFF5FA2, 0xFF5555, 0xFFA03C, 0xFFE14D, 0x55FF8A, 0xFFFFFF
     };
@@ -178,32 +178,39 @@ public class WinVisualsScreen extends Screen {
         rows.clear();
         active = null;
         switch (TABS[tab]) {
-            case "general" -> {
-                rows.add(toggle("enabled", () -> cfg.enabled, v -> cfg.enabled = v));
-                rows.add(toggle("others", () -> cfg.showOthers, v -> cfg.showOthers = v));
-                rows.add(slider("size", 0.3f, 3f, 0.1f, () -> cfg.particleSize, v -> cfg.particleSize = v, true));
+            case "sky" -> {
+                rows.add(toggle("aurora", () -> cfg.auroraSky, v -> cfg.auroraSky = v));
+                rows.add(toggle("stars", () -> cfg.skyStars, v -> cfg.skyStars = v));
+                rows.add(toggle("nebula", () -> cfg.skyNebula, v -> cfg.skyNebula = v));
+                rows.add(toggle("fog", () -> cfg.skyFog, v -> cfg.skyFog = v));
+                rows.add(slider("intensity", 0.1f, 2f, 0.1f, () -> cfg.skyIntensity, v -> cfg.skyIntensity = v, true));
             }
-            case "colors" -> {
+            case "visuals" -> {
+                rows.add(toggle("trails", () -> cfg.trails, v -> cfg.trails = v));
+                rows.add(toggle("sprint", () -> cfg.trailOnlySprint, v -> cfg.trailOnlySprint = v));
+                rows.add(toggle("elytra", () -> cfg.trailElytra, v -> cfg.trailElytra = v));
+                rows.add(toggle("hits", () -> cfg.hitEffects, v -> cfg.hitEffects = v));
+                rows.add(toggle("jump", () -> cfg.jumpEffects, v -> cfg.jumpEffects = v));
+                rows.add(toggle("landing", () -> cfg.landingEffects, v -> cfg.landingEffects = v));
+            }
+            case "particles" -> {
                 rows.add(modes());
                 rows.add(swatches());
                 rows.add(slider("speed", 0.1f, 5f, 0.1f, () -> cfg.colorSpeed, v -> cfg.colorSpeed = v, true));
-                rows.add(preview());
-            }
-            case "trails" -> {
-                rows.add(toggle("trails", () -> cfg.trails, v -> cfg.trails = v));
+                rows.add(slider("size", 0.3f, 3f, 0.1f, () -> cfg.particleSize, v -> cfg.particleSize = v, true));
                 rows.add(slider("density", 0, 10, 1, () -> (float) cfg.trailDensity, v -> cfg.trailDensity = Math.round(v), false));
-                rows.add(toggle("sprint", () -> cfg.trailOnlySprint, v -> cfg.trailOnlySprint = v));
-                rows.add(toggle("elytra", () -> cfg.trailElytra, v -> cfg.trailElytra = v));
             }
-            case "hits" -> {
-                rows.add(toggle("hits", () -> cfg.hitEffects, v -> cfg.hitEffects = v));
-                rows.add(slider("amount", 0, 80, 1, () -> (float) cfg.hitParticles, v -> cfg.hitParticles = Math.round(v), false));
+            case "interface" -> {
+                rows.add(toggle("hud", () -> cfg.showHud, v -> cfg.showHud = v));
+                rows.add(toggle("animations", () -> cfg.uiAnimations, v -> cfg.uiAnimations = v));
+                rows.add(toggle("compact", () -> cfg.compactUi, v -> cfg.compactUi = v));
+                rows.add(slider("scale", 0.75f, 1.5f, 0.05f, () -> cfg.uiScale, v -> cfg.uiScale = v, true));
+                rows.add(toggle("others", () -> cfg.showOthers, v -> cfg.showOthers = v));
             }
-            case "jumps" -> {
-                rows.add(toggle("jump", () -> cfg.jumpEffects, v -> cfg.jumpEffects = v));
-                rows.add(slider("amount", 0, 60, 1, () -> (float) cfg.jumpParticles, v -> cfg.jumpParticles = Math.round(v), false));
-                rows.add(toggle("landing", () -> cfg.landingEffects, v -> cfg.landingEffects = v));
-                rows.add(slider("amount", 0, 60, 1, () -> (float) cfg.landingParticles, v -> cfg.landingParticles = Math.round(v), false));
+            case "settings" -> {
+                rows.add(toggle("enabled", () -> cfg.enabled, v -> cfg.enabled = v));
+                rows.add(toggle("reduced", () -> cfg.reducedParticles, v -> cfg.reducedParticles = v));
+                rows.add(slider("dim", 0.2f, 0.9f, 0.05f, () -> cfg.backgroundDim, v -> cfg.backgroundDim = v, true));
             }
             default -> { }
         }
