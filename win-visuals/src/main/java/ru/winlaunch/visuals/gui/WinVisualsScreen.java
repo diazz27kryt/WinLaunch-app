@@ -23,14 +23,14 @@ public class WinVisualsScreen extends Screen {
     private static final int PANEL_H = 284;
     private static final int SIDEBAR_W = 108;
 
-    private static final int BG = 0xE6101420;
-    private static final int SIDEBAR = 0xF20B0E18;
-    private static final int TEXT = 0xFFE8ECF6;
-    private static final int TEXT_DIM = 0xFF8A93AB;
+    private static final int BG = 0xE608090B;
+    private static final int SIDEBAR = 0xF20D0E11;
+    private static final int TEXT = 0xFFF5F5F7;
+    private static final int TEXT_DIM = 0xFF96969E;
 
     private static final String[] TABS = {"sky", "visuals", "particles", "interface", "settings"};
     private static final int[] PRESETS = {
-        0x55AAFF, 0x9B6BFF, 0xFF5FA2, 0xFF5555, 0xFFA03C, 0xFFE14D, 0x55FF8A, 0xFFFFFF
+        0xFFFFFF, 0xE8E8EC, 0xC8C8CE, 0xA8A8B0, 0x888890, 0x686870, 0x484850, 0x282830
     };
 
     private final VisualsConfig cfg = VisualsConfig.get();
@@ -252,8 +252,8 @@ public class WinVisualsScreen extends Screen {
                 anim += ((get.getAsBoolean() ? 1f : 0f) - anim) * 0.3f;
                 int sw = 28, sh = 12;
                 int sx = x + w - sw - 8, sy = y + (h - sh) / 2;
-                int on = accent(0f);
-                rrect(g, sx, sy, sw, sh, 5, a(blend(0xFF3A4054, on, anim), alpha));
+                int on = 0xFFE7E7EB;
+                rrect(g, sx, sy, sw, sh, 5, a(blend(0xFF333338, 0xFFE7E7EB, anim), alpha));
                 int kx = sx + 2 + (int) ((sw - sh) * anim);
                 rrect(g, kx, sy + 2, sh - 4, sh - 4, 3, a(0xFFFFFFFF, alpha));
             }
@@ -400,7 +400,7 @@ public class WinVisualsScreen extends Screen {
 
     /** Accent colour follows the configured palette, so the UI previews it. */
     private static int accent(float offset) {
-        return 0xFF000000 | Palette.rgb(System.currentTimeMillis() / 50L, offset);
+        int shade = 224 + (int) (24f * Math.sin(offset * Math.PI));\n        return 0xFF000000 | (shade << 16) | (shade << 8) | shade;
     }
 
     private static int a(int argb, float alpha) {
