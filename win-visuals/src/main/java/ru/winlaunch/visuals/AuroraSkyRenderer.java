@@ -1,12 +1,10 @@
 package ru.winlaunch.visuals;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MappableRingBuffer;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.buffers.GpuBuffer;
@@ -34,23 +32,12 @@ public final class AuroraSkyRenderer {
     public static void render(Matrix4f viewMatrix, float tickDelta) {
         VisualsConfig cfg = VisualsConfig.get();
         float intensity = Math.max(0.1f, Math.min(2.0f, cfg.skyIntensity));
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableDepthTest();
-        RenderSystem.depthMask(false);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
         drawDome(viewMatrix, intensity);
         if (cfg.skyNebula) drawNebula(viewMatrix, intensity);
         if (cfg.skyFog) drawHorizonFog(viewMatrix, intensity);
         if (cfg.skyStars) drawStars(viewMatrix, intensity);
         if (cfg.auroraSky) drawAurora(viewMatrix, tickDelta, intensity);
 
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.depthMask(true);
-        RenderSystem.enableDepthTest();
-        RenderSystem.disableBlend();
     }
 
     private static void drawDome(Matrix4f matrix, float intensity) {
