@@ -16,6 +16,20 @@ public class VisualsConfig {
     public enum ColorMode { RAINBOW, SOLID, PULSE }
 
     public boolean enabled = true;
+
+    // Sky and menu options exposed by the WinVisuals interface.
+    public boolean auroraSky = true;
+    public boolean skyStars = true;
+    public boolean skyNebula = true;
+    public boolean skyFog = false;
+    public float skyIntensity = 1.0f;
+
+    public boolean showHud = true;
+    public boolean uiAnimations = true;
+    public boolean compactUi = false;
+    public float uiScale = 1.0f;
+    public boolean reducedParticles = false;
+    public float backgroundDim = 0.55f;
     /** Also show effects for other players, not only for you. */
     public boolean showOthers = false;
 
@@ -79,6 +93,9 @@ public class VisualsConfig {
         landingParticles = Math.max(0, Math.min(landingParticles, 60));
         colorSpeed = Math.max(0.05f, Math.min(colorSpeed, 10f));
         particleSize = Math.max(0.3f, Math.min(particleSize, 3f));
+        skyIntensity = Math.max(0.1f, Math.min(skyIntensity, 2f));
+        uiScale = Math.max(0.75f, Math.min(uiScale, 1.5f));
+        backgroundDim = Math.max(0.2f, Math.min(backgroundDim, 0.9f));
     }
 
     public void save() {
