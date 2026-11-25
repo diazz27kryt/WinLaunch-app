@@ -31,6 +31,7 @@ public final class AuroraSkyRenderer {
 
         drawDome(viewMatrix, intensity);
         if (cfg.skyNebula) drawNebula(viewMatrix, intensity);
+        if (cfg.skyFog) drawHorizonFog(viewMatrix, intensity);
         if (cfg.skyStars) drawStars(viewMatrix, intensity);
         if (cfg.auroraSky) drawAurora(viewMatrix, tickDelta, intensity);
 
@@ -81,6 +82,23 @@ public final class AuroraSkyRenderer {
                 vertex(b, matrix, wave1 + 0.12f, a1, c1);
                 vertex(b, matrix, wave1 - 0.12f, a1, c1);
             }
+        }
+        finish(b);
+    }
+
+
+    private static void drawHorizonFog(Matrix4f matrix, float intensity) {
+        BufferBuilder b = begin();
+        for (int i = 0; i < 64; i++) {
+            float a0 = (float) (Math.PI * 2.0 * i / 64.0);
+            float a1 = (float) (Math.PI * 2.0 * (i + 1) / 64.0);
+            float wave0 = 1.43f + 0.025f * (float) Math.sin(a0 * 4.0);
+            float wave1 = 1.43f + 0.025f * (float) Math.sin(a1 * 4.0);
+            int color = scaleAlpha(argb(30, 55, 65, 120), intensity);
+            vertex(b, matrix, wave0 - 0.09f, a0, scaleAlpha(color, 0.25f));
+            vertex(b, matrix, wave0 + 0.09f, a0, color);
+            vertex(b, matrix, wave1 + 0.09f, a1, color);
+            vertex(b, matrix, wave1 - 0.09f, a1, scaleAlpha(color, 0.25f));
         }
         finish(b);
     }
