@@ -45,6 +45,26 @@
     <string name="launcher_version_debug_warning_cant_close">Это предупреждение нельзя закрыть</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Динамическая (Android 12+)</string>
+    <string name="home_status_ready">Готов к запуску</string>
+    <string name="home_status_refreshing">Обновление списка версий…</string>
+    <string name="home_status_invalid">Версия повреждена</string>
+    <string name="home_edition">Java Edition</string>
+    <string name="home_play">Играть</string>
+    <string name="home_manage_versions">Управление версиями</string>
+    <string name="home_quick_access">Быстрый доступ</string>
+    <string name="home_quick_modpacks">Популярные сборки</string>
+    <string name="home_quick_mods">Лучшие моды</string>
+    <string name="home_quick_resource_packs">Ресурспаки</string>
+    <string name="home_quick_shaders">Шейдеры</string>
+    <string name="home_news">Новости</string>
+    <string name="home_news_title">Добро пожаловать в WinLaunch</string>
+    <string name="home_news_body">Бета 0.1: дизайн и функции ещё дорабатываются.</string>
+    <string name="home_info">Информация о лаунчере</string>
+    <string name="home_info_ram">RAM: %1$s</string>
+    <string name="home_info_android">Android %1$s</string>
+    <string name="home_info_version">WinLaunch %1$s</string>
+    <string name="home_banner_tagline">WinLaunch — твой мир Minecraft.</string>
+    <string name="theme_color_winlaunch">WinLaunch</string>
     <string name="theme_color_embermire">Эмбермайр</string>
     <string name="theme_color_velvet_rose">Бархатная роза</string>
     <string name="theme_color_mistwave">Туманная волна</string>

@@ -46,6 +46,8 @@ import com.movtery.zalithlauncher.game.download.modpack.install.ModpackImporter
 import com.movtery.zalithlauncher.game.download.modpack.install.PackNotSupportedException
 import com.movtery.zalithlauncher.game.download.modpack.install.UnsupportedPackReason
 import com.movtery.zalithlauncher.game.download.modpack.platform.PackPlatform
+import com.movtery.zalithlauncher.game.download.modpack.optimization.WinLaunchOptimizationPack
+import com.movtery.zalithlauncher.game.download.modpack.optimization.WinLaunchPvPPack
 import com.movtery.zalithlauncher.game.version.download.DownloadFailedException
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
 import com.movtery.zalithlauncher.ui.components.MarqueeText
@@ -57,8 +59,13 @@ import com.movtery.zalithlauncher.ui.screens.content.download.addon.elements.Pac
 import com.movtery.zalithlauncher.ui.screens.content.elements.TitleTaskFlowDialog
 import com.movtery.zalithlauncher.utils.logging.Logger
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
+import java.io.File
 import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -146,6 +153,8 @@ class ModpackImportViewModel : ViewModel() {
      * 整合包导入器
      */
     var importer by mutableStateOf<ModpackImporter?>(null)
+    var isPreparingOptimizationPack by mutableStateOf(false)
+    var isPreparingPvPPack by mutableStateOf(false)
 
     /**
      * 开始导入整合包
@@ -154,9 +163,12 @@ class ModpackImportViewModel : ViewModel() {
         context: Context,
         uri: Uri,
         onStart: () -> Unit = {},
-        onStop: () -> Unit = {}
+        onStop: () -> Unit = {},
+        targetVersionName: String? = null
     ) {
-        if (importOperation != ModpackImportOperation.None) {
+        if (importOperation != ModpackImportOperation.None ||
+            ((isPreparingOptimizationPack || isPreparingPvPPack) && targetVersionName == null)
+        ) {
             //当前有别的导入任务，拒绝这次导入
             return
         }
@@ -165,7 +177,9 @@ class ModpackImportViewModel : ViewModel() {
             context = context,
             uri = uri,
             scope = viewModelScope,
-            waitForVersionName = ::waitForVersionName,
+            waitForVersionName = { suggestedName ->
+                targetVersionName ?: waitForVersionName(suggestedName)
+            },
             waitForConfirmMobileData = ::waitForConfirmMobileData
         ).also {
             it.startImport(
@@ -193,6 +207,127 @@ class ModpackImportViewModel : ViewModel() {
             )
         }
         onStart()
+    }
+
+    /**
+     * Builds the selected WinLaunch Optimization .mrpack from compatible Modrinth releases,
+     * then hands it to the existing importer so it gets the same isolated-profile setup,
+     * dependency handling, progress dialog and mobile-data confirmation as any other pack.
+     */
+    fun importOptimization(
+        context: Context,
+        gameVersion: String,
+        onStart: () -> Unit = {},
+        onStop: () -> Unit = {}
+    ) {
+        if (importOperation != ModpackImportOperation.None || isPreparingOptimizationPack || isPreparingPvPPack) return
+
+        isPreparingOptimizationPack = true
+        onStart()
+
+        viewModelScope.launch {
+            var packFile: File? = null
+            try {
+                packFile = withContext(Dispatchers.IO) {
+                    WinLaunchOptimizationPack.create(context, gameVersion)
+                }
+                isPreparingOptimizationPack = false
+
+                val finalPackFile = packFile
+                import(
+                    context = context,
+                    uri = Uri.fromFile(finalPackFile),
+                    onStart = {},
+                    onStop = {
+                        finalPackFile.delete()
+                        onStop()
+                    },
+                    targetVersionName = uniqueOptimizationVersionName(gameVersion)
+                )
+            } catch (e: CancellationException) {
+                isPreparingOptimizationPack = false
+                packFile?.delete()
+                onStop()
+                throw e
+            } catch (th: Throwable) {
+                isPreparingOptimizationPack = false
+                packFile?.delete()
+                importOperation = ModpackImportOperation.Error(th)
+                onStop()
+            }
+        }
+    }
+
+    /**
+     * Builds the fair-play WinLaunch PvP Pack and installs it through the standard
+     * Modrinth importer into its own isolated profile.
+     */
+    fun importPvPPack(
+        context: Context,
+        gameVersion: String,
+        onStart: () -> Unit = {},
+        onStop: () -> Unit = {}
+    ) {
+        if (importOperation != ModpackImportOperation.None ||
+            isPreparingOptimizationPack || isPreparingPvPPack
+        ) return
+
+        isPreparingPvPPack = true
+        onStart()
+
+        viewModelScope.launch {
+            var packFile: File? = null
+            try {
+                packFile = withContext(Dispatchers.IO) {
+                    WinLaunchPvPPack.create(context, gameVersion)
+                }
+                isPreparingPvPPack = false
+
+                val finalPackFile = packFile
+                import(
+                    context = context,
+                    uri = Uri.fromFile(finalPackFile),
+                    onStart = {},
+                    onStop = {
+                        finalPackFile.delete()
+                        onStop()
+                    },
+                    targetVersionName = uniquePvPPackVersionName(gameVersion)
+                )
+            } catch (e: CancellationException) {
+                isPreparingPvPPack = false
+                packFile?.delete()
+                onStop()
+                throw e
+            } catch (th: Throwable) {
+                isPreparingPvPPack = false
+                packFile?.delete()
+                importOperation = ModpackImportOperation.Error(th)
+                onStop()
+            }
+        }
+    }
+
+    private fun uniquePvPPackVersionName(gameVersion: String): String {
+        val baseName = "WinLaunch PvP Pack $gameVersion"
+        var candidate = baseName
+        var suffix = 2
+        while (VersionsManager.isVersionExists(candidate, true)) {
+            candidate = "$baseName ($suffix)"
+            suffix++
+        }
+        return candidate
+    }
+
+    private fun uniqueOptimizationVersionName(gameVersion: String): String {
+        val baseName = "WinLaunch Optimization $gameVersion"
+        var candidate = baseName
+        var suffix = 2
+        while (VersionsManager.isVersionExists(candidate, true)) {
+            candidate = "$baseName ($suffix)"
+            suffix++
+        }
+        return candidate
     }
 
     fun cancel() {

@@ -624,6 +624,7 @@ fun ZalithLauncherTheme(
             }
 
             darkTheme -> when (colorTheme) {
+                ColorThemeType.WINLAUNCH -> winLaunchDark
                 ColorThemeType.EMBERMIRE -> embermireDark
                 ColorThemeType.VELVET_ROSE -> velvetRoseDark
                 ColorThemeType.MISTWAVE -> mistwaveDark
@@ -635,10 +636,11 @@ fun ZalithLauncherTheme(
                     color = customColor,
                     style = customPaletteStyle
                 )
-                else -> embermireDark
+                else -> winLaunchDark
             }
 
             else -> when (colorTheme) {
+                ColorThemeType.WINLAUNCH -> winLaunchLight
                 ColorThemeType.EMBERMIRE -> embermireLight
                 ColorThemeType.VELVET_ROSE -> velvetRoseLight
                 ColorThemeType.MISTWAVE -> mistwaveLight
@@ -650,7 +652,7 @@ fun ZalithLauncherTheme(
                     color = customColor,
                     style = customPaletteStyle
                 )
-                else -> embermireLight
+                else -> winLaunchLight
             }
         }
     }

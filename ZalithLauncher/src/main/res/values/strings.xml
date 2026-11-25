@@ -130,6 +130,26 @@
     <!-- Option of the theme color setting in launcher settings -->
     <string name="theme_color_dynamic">Dynamic (Android 12+)</string>
     <!-- Option of the theme color setting in launcher settings -->
+    <string name="home_status_ready">Ready to launch</string>
+    <string name="home_status_refreshing">Refreshing versions…</string>
+    <string name="home_status_invalid">Version is damaged</string>
+    <string name="home_edition">Java Edition</string>
+    <string name="home_play">Play</string>
+    <string name="home_manage_versions">Manage versions</string>
+    <string name="home_quick_access">Quick access</string>
+    <string name="home_quick_modpacks">Popular modpacks</string>
+    <string name="home_quick_mods">Best mods</string>
+    <string name="home_quick_resource_packs">Resource packs</string>
+    <string name="home_quick_shaders">Shaders</string>
+    <string name="home_news">News</string>
+    <string name="home_news_title">Welcome to WinLaunch</string>
+    <string name="home_news_body">Beta 0.1: the design and features are still in progress.</string>
+    <string name="home_info">Launcher info</string>
+    <string name="home_info_ram">RAM: %1$s</string>
+    <string name="home_info_android">Android %1$s</string>
+    <string name="home_info_version">WinLaunch %1$s</string>
+    <string name="home_banner_tagline">WinLaunch — your Minecraft world.</string>
+    <string name="theme_color_winlaunch">WinLaunch</string>
     <string name="theme_color_embermire">Embermire</string>
     <!-- Option of the theme color setting in launcher settings -->
     <string name="theme_color_velvet_rose">Velvet Rose</string>
