@@ -2,7 +2,7 @@ package ru.winlaunch.visuals.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.world.MoonPhase;
+import net.minecraft.world.level.MoonPhase;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -13,7 +13,7 @@ import ru.winlaunch.visuals.VisualsConfig;
 /** Draws the Win Visuals night sky inside the 1.21.11 sky render pass. */
 @Mixin(SkyRenderer.class)
 public abstract class SkyRendererMixin {
-    @Inject(method = "renderSunMoonAndStars", at = @At("HEAD"))
+    @Inject(method = "method_62307", at = @At("HEAD"), remap = false)
     private void winvisuals$drawAurora(PoseStack poseStack, float sunAngle, float moonAngle,
                                        float starAngle, MoonPhase moonPhase, float rainBrightness,
                                        float starBrightness, CallbackInfo ci) {
