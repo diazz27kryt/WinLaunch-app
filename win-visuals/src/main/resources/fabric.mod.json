@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "winvisuals",
+  "version": "${version}",
+  "name": "Win Visuals",
+  "description": "Client-side visual effects for WinLaunch: movement trails, hit effects, jump and landing effects. Purely cosmetic.",
+  "authors": ["WinLaunch"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["ru.winlaunch.visuals.WinVisuals"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
