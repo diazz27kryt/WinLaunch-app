@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.InteractionResult;
@@ -44,7 +45,7 @@ public class WinVisuals implements ClientModInitializer {
         VisualsConfig.get();
 
         openKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-            "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "key.categories.winvisuals"));
+            "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("winvisuals", "main"))));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
 
@@ -61,7 +62,7 @@ public class WinVisuals implements ClientModInitializer {
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             VisualsConfig cfg = VisualsConfig.get();
             Minecraft mc = Minecraft.getInstance();
-            if (cfg.enabled && cfg.hitEffects && world.isClientSide && player == mc.player
+            if (cfg.enabled && cfg.hitEffects && world.isClientSide() && player == mc.player
                 && world instanceof ClientLevel level) {
                 Effects.hit(level, entity);
             }
