@@ -1,0 +1,40 @@
+Compiled from "HudElementRegistry.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry {
+  public static void addFirst(net.minecraft.class_2960, net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement);
+  public static void addLast(net.minecraft.class_2960, net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement);
+  public static void attachElementBefore(net.minecraft.class_2960, net.minecraft.class_2960, net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement);
+  public static void attachElementAfter(net.minecraft.class_2960, net.minecraft.class_2960, net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement);
+  public static void removeElement(net.minecraft.class_2960);
+  public static void replaceElement(net.minecraft.class_2960, java.util.function.Function<net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement, net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement>);
+}
+Compiled from "HudElement.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement {
+  public abstract void render(net.minecraft.class_332, net.minecraft.class_9779);
+}
+Compiled from "HudRenderCallback.java"
+public interface net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback> EVENT;
+  public abstract void onHudRender(net.minecraft.class_332, net.minecraft.class_9779);
+  static {};
+}
+Error: class not found: net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+MISSING net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+Compiled from "KeyBindingHelper.java"
+public final class net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper {
+  public static net.minecraft.class_304 registerKeyBinding(net.minecraft.class_304);
+  public static net.minecraft.class_3675$class_306 getBoundKeyOf(net.minecraft.class_304);
+}
+Compiled from "AttackEntityCallback.java"
+public interface net.fabricmc.fabric.api.event.player.AttackEntityCallback {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.event.player.AttackEntityCallback> EVENT;
+  public abstract net.minecraft.class_1269 interact(net.minecraft.class_1657, net.minecraft.class_1937, net.minecraft.class_1268, net.minecraft.class_1297, net.minecraft.class_3966);
+  static {};
+}
+Compiled from "ClientTickEvents.java"
+public final class net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents {
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents$StartTick> START_CLIENT_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents$EndTick> END_CLIENT_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents$StartWorldTick> START_WORLD_TICK;
+  public static final net.fabricmc.fabric.api.event.Event<net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents$EndWorldTick> END_WORLD_TICK;
+  static {};
+}

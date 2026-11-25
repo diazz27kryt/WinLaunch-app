@@ -1,0 +1,4 @@
+/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-key-binding-api-v1/1.1.7+4fc5413f3e/e3085cba5258bcbee165350caadd1c9a400e5724/fabric-key-binding-api-v1-1.1.7+4fc5413f3e.jar
+/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-events-interaction-v0/4.1.1+3b89ecf63e/31ed7cda05cdc28ca23fc7d2bac120fda92e0c85/fabric-events-interaction-v0-4.1.1+3b89ecf63e.jar
+/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-lifecycle-events-v1/2.6.15+4ebb5c083e/40e1f2b9098d25b11eeca625289119f8864ed2b3/fabric-lifecycle-events-v1-2.6.15+4ebb5c083e.jar
+/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-rendering-v1/16.2.10+0290ad933e/2485bb9579abaada1f556258b823dd9fbb1e3b05/fabric-rendering-v1-16.2.10+0290ad933e.jar
