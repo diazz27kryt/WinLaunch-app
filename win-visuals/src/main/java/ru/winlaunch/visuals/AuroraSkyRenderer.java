@@ -2,11 +2,22 @@ package ru.winlaunch.visuals;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MappableRingBuffer;
+import net.minecraft.client.renderer.RenderPipelines;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.systems.CommandEncoder;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.vertex.MeshData;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+import org.lwjgl.system.MemoryUtil;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import org.joml.Matrix4f;
 
 import java.util.Random;
@@ -16,6 +27,7 @@ public final class AuroraSkyRenderer {
     private static final int LONGITUDES = 48;
     private static final int LATITUDES = 18;
     private static final float RADIUS = 96.0f;
+    private static MappableRingBuffer vertexBuffer;
 
     private AuroraSkyRenderer() {}
 
@@ -162,7 +174,48 @@ public final class AuroraSkyRenderer {
     }
 
     private static void finish(BufferBuilder buffer) {
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        MeshData mesh = buffer.buildOrThrow();
+        MeshData.DrawState drawState = mesh.drawState();
+        VertexFormat format = drawState.format();
+        int bytes = drawState.vertexCount() * format.getVertexSize();
+
+        if (vertexBuffer == null || vertexBuffer.size() < bytes) {
+            if (vertexBuffer != null) vertexBuffer.close();
+            vertexBuffer = new MappableRingBuffer(
+                () -> "Win Visuals aurora vertices",
+                GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_MAP_WRITE,
+                Math.max(bytes, 4096)
+            );
+        }
+
+        CommandEncoder encoder = RenderSystem.getDevice().createCommandEncoder();
+        try (GpuBuffer.MappedView mapped = encoder.mapBuffer(
+                vertexBuffer.currentBuffer().slice(0, mesh.vertexBuffer().remaining()), false, true)) {
+            MemoryUtil.memCopy(mesh.vertexBuffer(), mapped.data());
+        }
+
+        GpuBuffer indices = format.uploadImmediateIndexBuffer(mesh.indexBuffer());
+        Vector4f colorModulator = new Vector4f(1f, 1f, 1f, 1f);
+        Vector3f modelOffset = new Vector3f();
+        Matrix4f textureMatrix = new Matrix4f();
+        var transforms = RenderSystem.getDynamicUniforms().writeTransform(
+            RenderSystem.getModelViewMatrix(), colorModulator, modelOffset, textureMatrix
+        );
+
+        Minecraft client = Minecraft.getInstance();
+        try (RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                () -> "Win Visuals aurora",
+                client.getMainRenderTarget().getColorTextureView(), OptionalInt.empty(),
+                client.getMainRenderTarget().getDepthTextureView(), OptionalDouble.empty())) {
+            pass.setPipeline(RenderPipelines.DEBUG_QUADS);
+            RenderSystem.bindDefaultUniforms(pass);
+            pass.setUniform("DynamicTransforms", transforms);
+            pass.setVertexBuffer(0, vertexBuffer.currentBuffer());
+            pass.setIndexBuffer(indices, drawState.indexType());
+            pass.drawIndexed(0, 0, drawState.indexCount(), 1);
+        }
+        mesh.close();
+        vertexBuffer.rotate();
     }
 
     private static int scaleAlpha(int color, float scale) {
