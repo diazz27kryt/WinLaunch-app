@@ -23,7 +23,7 @@ public abstract class LevelRendererMixin {
                                              Camera camera, boolean thickFog, Runnable fogCallback,
                                              CallbackInfo ci) {
         if (!VisualsConfig.get().enabled) return;
-        AuroraSkyRenderer.render(poseMatrix, tickDelta);
+        fogCallback.run();\n        AuroraSkyRenderer.render(poseMatrix, tickDelta);
         ci.cancel();
     }
 }
