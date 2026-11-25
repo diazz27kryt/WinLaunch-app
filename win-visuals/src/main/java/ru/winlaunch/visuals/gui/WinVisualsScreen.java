@@ -112,8 +112,9 @@ public class WinVisualsScreen extends Screen {
         int y = py + 38;
         for (Row r : rows) {
             r.render(g, cx, y, cw, mouseX, mouseY, ease);
-            y += r.h + 6;
+            y += r.h + (cfg.compactUi ? 3 : 6);
         }
+        g.pose().popPose();
     }
 
     // ---------------------------------------------------------------- input
@@ -140,7 +141,7 @@ public class WinVisualsScreen extends Screen {
                 active = r;
                 return true;
             }
-            y += r.h + 6;
+            y += r.h + (cfg.compactUi ? 3 : 6);
         }
         return super.mouseClicked(mx, my, button);
     }
