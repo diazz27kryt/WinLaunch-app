@@ -3,7 +3,7 @@
   "id": "winvisuals",
   "version": "${version}",
   "name": "Win Visuals",
-  "description": "Client-side visual effects for WinLaunch: movement trails, hit effects, jump and landing effects. Purely cosmetic.",
+  "description": "Client-side visual effects for WinLaunch: animated night sky, aurora, stars, nebulae, movement trails and cosmetic effects. Purely cosmetic.",
   "authors": ["WinLaunch"],
   "license": "MIT",
   "environment": "client",
@@ -13,7 +13,7 @@
   },
   "depends": {
     "fabricloader": ">=0.16.0",
-    "minecraft": "~1.21.1",
+    "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
   }
