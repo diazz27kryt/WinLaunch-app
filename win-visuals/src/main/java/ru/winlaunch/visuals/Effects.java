@@ -15,7 +15,8 @@ public final class Effects {
         VisualsConfig cfg = VisualsConfig.get();
         RandomSource r = level.random;
         long t = level.getGameTime();
-        int density = cfg.reducedParticles ? Math.max(0, cfg.trailDensity / 2) : cfg.trailDensity;\n        for (int i = 0; i < density; i++) {
+        int density = cfg.reducedParticles ? Math.max(0, cfg.trailDensity / 2) : cfg.trailDensity;
+        for (int i = 0; i < density; i++) {
             double x = p.getX() - dx * 0.5 + (r.nextDouble() - 0.5) * 0.35;
             double y = p.getY() + 0.1 + r.nextDouble() * 0.25;
             double z = p.getZ() - dz * 0.5 + (r.nextDouble() - 0.5) * 0.35;
@@ -25,12 +26,14 @@ public final class Effects {
 
     /** Expanding coloured ring at the feet when jumping. */
     public static void jump(ClientLevel level, Player p) {
-        VisualsConfig cfg = VisualsConfig.get();\n        ring(level, p, cfg.reducedParticles ? cfg.jumpParticles / 2 : cfg.jumpParticles, 0.35, 0.12, false);
+        VisualsConfig cfg = VisualsConfig.get();
+        ring(level, p, cfg.reducedParticles ? cfg.jumpParticles / 2 : cfg.jumpParticles, 0.35, 0.12, false);
     }
 
     /** Bigger ring plus dust puff on landing. */
     public static void landing(ClientLevel level, Player p) {
-        VisualsConfig cfg = VisualsConfig.get();\n        ring(level, p, cfg.reducedParticles ? cfg.landingParticles / 2 : cfg.landingParticles, 0.4, 0.2, true);
+        VisualsConfig cfg = VisualsConfig.get();
+        ring(level, p, cfg.reducedParticles ? cfg.landingParticles / 2 : cfg.landingParticles, 0.4, 0.2, true);
     }
 
     private static void ring(ClientLevel level, Player p, int count, double radius, double speed, boolean puff) {
@@ -54,7 +57,8 @@ public final class Effects {
     /** Burst of coloured particles plus crit sparks around a hit entity. */
     public static void hit(ClientLevel level, Entity target) {
         VisualsConfig cfg = VisualsConfig.get();
-        int particleCount = cfg.reducedParticles ? cfg.hitParticles / 2 : cfg.hitParticles;\n        if (particleCount <= 0) return;
+        int particleCount = cfg.reducedParticles ? cfg.hitParticles / 2 : cfg.hitParticles;
+        if (particleCount <= 0) return;
         RandomSource r = level.random;
         long t = level.getGameTime();
         double cx = target.getX();
