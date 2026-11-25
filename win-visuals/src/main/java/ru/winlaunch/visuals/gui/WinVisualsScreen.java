@@ -51,15 +51,19 @@ public class WinVisualsScreen extends Screen {
     @Override
     public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         // Own dim, no vanilla blur.
-        g.fill(0, 0, this.width, this.height, 0x66000000);
+        int alpha = Math.max(0, Math.min(220, (int) (cfg.backgroundDim * 255f)));\n        g.fill(0, 0, this.width, this.height, (alpha << 24));
     }
 
     // ---------------------------------------------------------------- rendering
 
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        float open = Math.min(1f, (System.currentTimeMillis() - openedAt) / 180f);
+        float open = cfg.uiAnimations ? Math.min(1f, (System.currentTimeMillis() - openedAt) / 180f) : 1f;
         float ease = 1f - (1f - open) * (1f - open);
+        g.pose().pushPose();
+        g.pose().translate(this.width / 2.0f, this.height / 2.0f, 0);
+        g.pose().scale(cfg.uiScale, cfg.uiScale, 1f);
+        g.pose().translate(-this.width / 2.0f, -this.height / 2.0f, 0);
         renderBackground(g, mouseX, mouseY, partialTick);
 
         px = (this.width - PANEL_W) / 2;
