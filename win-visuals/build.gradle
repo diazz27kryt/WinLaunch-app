@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.7-SNAPSHOT'
+    id 'fabric-loom' version '1.14-SNAPSHOT'
 }
 
 version = project.mod_version
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     // Generate the refmap required by the client-side sky renderer mixin.
-    annotationProcessor "net.fabricmc:sponge-mixin:0.13.4+mixin.0.8.7"
+    annotationProcessor "net.fabricmc:sponge-mixin:0.16.3+mixin.0.8.7"
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
     mappings loom.officialMojangMappings()
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
