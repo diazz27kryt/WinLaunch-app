@@ -1,0 +1,37 @@
+name: Inspect Minecraft API
+
+# Temporary helper: decompiles Minecraft 1.21.11 (Mojang names) and prints API signatures
+# requested by .github/inspect/queries.sh into the job log.
+on:
+  push:
+    paths:
+      - '.github/inspect/**'
+      - '.github/workflows/inspect-mc.yml'
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.0'
+      - name: Decompile Minecraft
+        working-directory: win-visuals
+        run: gradle genSources --no-daemon -q
+      - name: Extract sources and Fabric API
+        run: |
+          SRC=$(find ~/.gradle -name '*sources.jar' -path '*minecraft*' | grep -v fabric-api | head -n 1)
+          echo "minecraft sources: $SRC"
+          mkdir -p /tmp/mcsrc && unzip -q -o "$SRC" -d /tmp/mcsrc
+          FAPI=$(find ~/.gradle -name 'fabric-api-*.jar' ! -name '*sources*' | head -n 1)
+          echo "fabric api: $FAPI"
+          mkdir -p /tmp/fapi && unzip -q -o "$FAPI" -d /tmp/fapi
+          find /tmp/fapi -name '*.jar' | head -50
+      - name: Queries
+        run: bash .github/inspect/queries.sh /tmp/mcsrc /tmp/fapi
