@@ -400,7 +400,8 @@ public class WinVisualsScreen extends Screen {
 
     /** Accent colour follows the configured palette, so the UI previews it. */
     private static int accent(float offset) {
-        int shade = 224 + (int) (24f * Math.sin(offset * Math.PI));\n        return 0xFF000000 | (shade << 16) | (shade << 8) | shade;
+        int shade = 224 + (int) (24f * Math.sin(offset * Math.PI));
+        return 0xFF000000 | (shade << 16) | (shade << 8) | shade;
     }
 
     private static int a(int argb, float alpha) {
