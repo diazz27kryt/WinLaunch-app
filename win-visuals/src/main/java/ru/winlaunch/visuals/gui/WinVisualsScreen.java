@@ -2,6 +2,8 @@ package ru.winlaunch.visuals.gui;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import ru.winlaunch.visuals.Palette;
@@ -64,10 +66,10 @@ public class WinVisualsScreen extends Screen {
         renderBackground(g, mouseX, mouseY, partialTick);
         mouseX = (int) ((mouseX - this.width / 2.0f) / cfg.uiScale + this.width / 2.0f);
         mouseY = (int) ((mouseY - this.height / 2.0f) / cfg.uiScale + this.height / 2.0f);
-        g.pose().pushPose();
-        g.pose().translate(this.width / 2.0f, this.height / 2.0f, 0);
-        g.pose().scale(cfg.uiScale, cfg.uiScale, 1f);
-        g.pose().translate(-this.width / 2.0f, -this.height / 2.0f, 0);
+        g.pose().pushMatrix();
+        g.pose().translate(this.width / 2.0f, this.height / 2.0f);
+        g.pose().scale(cfg.uiScale, cfg.uiScale);
+        g.pose().translate(-this.width / 2.0f, -this.height / 2.0f);
 
         px = (this.width - PANEL_W) / 2;
         py = (this.height - PANEL_H) / 2 + (int) ((1f - ease) * 12);
@@ -114,14 +116,15 @@ public class WinVisualsScreen extends Screen {
             r.render(g, cx, y, cw, mouseX, mouseY, ease);
             y += r.h + (cfg.compactUi ? 3 : 6);
         }
-        g.pose().popPose();
+        g.pose().popMatrix();
     }
 
     // ---------------------------------------------------------------- input
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
-        if (button != 0) return super.mouseClicked(mx, my, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mx = event.x(), my = event.y();
+        if (event.button() != 0) return super.mouseClicked(event, doubleClick);
         mx = (mx - this.width / 2.0) / cfg.uiScale + this.width / 2.0;
         my = (my - this.height / 2.0) / cfg.uiScale + this.height / 2.0;
         for (int i = 0; i < TABS.length; i++) {
@@ -143,38 +146,38 @@ public class WinVisualsScreen extends Screen {
             }
             y += r.h + (cfg.compactUi ? 3 : 6);
         }
-        return super.mouseClicked(mx, my, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
-        mx = (mx - this.width / 2.0) / cfg.uiScale + this.width / 2.0;
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        double mx = (event.x() - this.width / 2.0) / cfg.uiScale + this.width / 2.0;
         if (active != null) {
             int cx = px + SIDEBAR_W + 14;
             int cw = PANEL_W - SIDEBAR_W - 28;
             active.drag(cx, cw, mx);
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return super.mouseDragged(event, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         if (active != null) {
             active = null;
             cfg.save();
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return super.mouseReleased(event);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (WinVisuals.openKey().matches(keyCode, scanCode)) {
+    public boolean keyPressed(KeyEvent event) {
+        if (WinVisuals.openKey().matches(event)) {
             onClose();
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
