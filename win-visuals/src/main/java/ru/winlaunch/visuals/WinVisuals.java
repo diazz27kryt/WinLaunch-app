@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -46,6 +47,16 @@ public class WinVisuals implements ClientModInitializer {
             "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "key.categories.winvisuals"));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+
+        HudRenderCallback.EVENT.register((gui, tickDelta) -> {
+            Minecraft client = Minecraft.getInstance();
+            VisualsConfig cfg = VisualsConfig.get();
+            if (!cfg.enabled || !cfg.showHud || client.player == null || client.screen != null) return;
+            int accent = 0xFF000000 | Palette.rgb(client.level == null ? 0L : client.level.getGameTime(), 0f);
+            gui.fill(8, 8, 112, 26, 0xB20B0E18);
+            gui.fill(8, 8, 10, 26, accent);
+            gui.drawString(client.font, "WIN VISUALS", 16, 14, 0xFFE8ECF6, false);
+        });
 
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             VisualsConfig cfg = VisualsConfig.get();
