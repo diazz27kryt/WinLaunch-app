@@ -61,11 +61,13 @@ public class WinVisualsScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         float open = cfg.uiAnimations ? Math.min(1f, (System.currentTimeMillis() - openedAt) / 180f) : 1f;
         float ease = 1f - (1f - open) * (1f - open);
+        renderBackground(g, mouseX, mouseY, partialTick);
+        mouseX = (int) ((mouseX - this.width / 2.0f) / cfg.uiScale + this.width / 2.0f);
+        mouseY = (int) ((mouseY - this.height / 2.0f) / cfg.uiScale + this.height / 2.0f);
         g.pose().pushPose();
         g.pose().translate(this.width / 2.0f, this.height / 2.0f, 0);
         g.pose().scale(cfg.uiScale, cfg.uiScale, 1f);
         g.pose().translate(-this.width / 2.0f, -this.height / 2.0f, 0);
-        renderBackground(g, mouseX, mouseY, partialTick);
 
         px = (this.width - PANEL_W) / 2;
         py = (this.height - PANEL_H) / 2 + (int) ((1f - ease) * 12);
@@ -119,6 +121,8 @@ public class WinVisualsScreen extends Screen {
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
         if (button != 0) return super.mouseClicked(mx, my, button);
+        mx = (mx - this.width / 2.0) / cfg.uiScale + this.width / 2.0;
+        my = (my - this.height / 2.0) / cfg.uiScale + this.height / 2.0;
         for (int i = 0; i < TABS.length; i++) {
             if (inside(mx, my, px + 8, py + 42 + i * 24, SIDEBAR_W - 16, 20)) {
                 if (tab != i) {
@@ -143,6 +147,7 @@ public class WinVisualsScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        mx = (mx - this.width / 2.0) / cfg.uiScale + this.width / 2.0;
         if (active != null) {
             int cx = px + SIDEBAR_W + 14;
             int cw = PANEL_W - SIDEBAR_W - 28;
