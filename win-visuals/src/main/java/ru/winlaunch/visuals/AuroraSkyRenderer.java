@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.CommandEncoder;
 import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
