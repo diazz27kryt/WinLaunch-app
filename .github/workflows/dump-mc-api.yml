@@ -2,8 +2,11 @@ name: Dump MC API
 on:
   push:
     branches: [api-dump]
+permissions:
+  contents: write
 jobs:
   dump:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,15 +22,24 @@ jobs:
         run: gradle genSources --no-daemon
       - name: Collect
         run: |
-          mkdir -p out
-          SRC=$(find ~/.gradle ~/.cache -name '*-sources.jar' -path '*minecraft*' 2>/dev/null | head -n 5)
-          echo "$SRC"
-          for f in $SRC; do cp "$f" out/; done
-          find ~/.gradle ~/.cache -name 'fabric-api*.jar' -o -name 'fabric-*-v1-*.jar' 2>/dev/null | head -100 > out/fabric-jars.txt || true
-          mkdir -p out/fabric
-          find ~/.gradle ~/.cache -name 'fabric-*.jar' ! -name '*-sources.jar' 2>/dev/null | grep -E 'fabric-(rendering|key-binding|events-interaction|lifecycle-events|resource-loader)' | while read j; do cp "$j" out/fabric/; done
-          ls -la out out/fabric
-      - uses: actions/upload-artifact@v4
-        with:
-          name: mc-api
-          path: out
+          SRC=$(find ~/.gradle -name '*-sources.jar' | grep -i 'minecraft' | head -n 3)
+          echo "SRC=$SRC"
+          rm -rf apidump && mkdir -p apidump/src apidump/fabric
+          for f in $SRC; do
+            unzip -q -o "$f" 'net/minecraft/client/*' 'com/mojang/blaze3d/*' 'net/minecraft/resources/*' 'net/minecraft/core/particles/*' 'net/minecraft/world/level/MoonPhase*' 'net/minecraft/world/InteractionResult*' -d apidump/src || true
+          done
+          du -sh apidump/src
+          FJ=$(find ~/.gradle -name '*.jar' ! -name '*-sources.jar' | grep -E 'fabric-(rendering-v1|key-binding-api-v1|events-interaction-v0|lifecycle-events-v1)' )
+          echo "$FJ" > apidump/fabric/jars.txt
+          for j in $FJ; do
+            unzip -l "$j" | awk '{print $4}' | grep '\.class$' >> apidump/fabric/classes.txt
+          done
+          CP=$(echo "$FJ" | tr '\n' ':')
+          for c in net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper net.fabricmc.fabric.api.event.player.AttackEntityCallback net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents; do
+            javap -cp "$CP" "$c" >> apidump/fabric/javap.txt 2>&1 || echo "MISSING $c" >> apidump/fabric/javap.txt
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f apidump
+          git commit -qm "api dump [skip ci]"
+          git push
