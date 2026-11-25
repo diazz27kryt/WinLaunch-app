@@ -22,7 +22,7 @@ jobs:
         run: gradle genSources --no-daemon
       - name: Collect
         run: |
-          SRC=$(find ~/.gradle -name '*-sources.jar' | grep -i 'minecraft' | head -n 3)
+          SRC=$(find / -name '*-sources.jar' 2>/dev/null | grep -i 'minecraft' | head -n 3)
           echo "SRC=$SRC"
           rm -rf apidump && mkdir -p apidump/src apidump/fabric
           for f in $SRC; do
