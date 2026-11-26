@@ -113,6 +113,7 @@ sealed interface AccountManageIntent {
     data class UpdatePendingCapeData(val capeState: ChangeCape) :
         AccountManageIntent
     data class OnSkinPicked(val uri: Uri) : AccountManageIntent
+    data object OnStockSkinSelected : AccountManageIntent
     data object ResetAccountSkinDialogState : AccountManageIntent
 
 
@@ -347,6 +348,7 @@ class AccountManageViewModel @AssistedInject constructor(
             }
 
             is AccountManageIntent.OnSkinPicked -> onSkinPicked(intent)
+            is AccountManageIntent.OnStockSkinSelected -> onStockSkinSelected()
             is AccountManageIntent.ResetAccountSkinDialogState -> {
                 _accountSkinDialogState.update { AccountSkinDialogState() }
             }
@@ -427,6 +429,63 @@ class AccountManageViewModel @AssistedInject constructor(
 
             _accountSkinDialogState.update {
                 it.copy(importingSkin = false)
+            }
+        }
+    }
+
+    /**
+     * Load the bundled WinLaunch skin into the normal preview/apply flow.
+     */
+    private fun onStockSkinSelected() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _accountSkinDialogState.update {
+                it.copy(importingSkin = true)
+            }
+
+            val cacheFile = File(
+                PathManager.DIR_IMAGE_CACHE,
+                "winlaunch_stock_skin_${UUID.randomUUID()}.png"
+            )
+
+            try {
+                context.assets.open("skin/winlaunch.png").use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                val skinType = validateSkinFile(cacheFile)
+                require(skinType.isValid()) {
+                    "The bundled WinLaunch skin is not a valid Minecraft skin."
+                }
+
+                val model = if (cacheFile.isSlimModel()) {
+                    SkinModelType.ALEX
+                } else {
+                    SkinModelType.STEVE
+                }
+
+                _accountSkinDialogState.update {
+                    it.copy(
+                        pendingSkinData = ChangeSkin.ChangeSkinData(
+                            cacheFile = cacheFile,
+                            data = ChangeSkin.SkinModel.Model(model)
+                        )
+                    )
+                }
+            } catch (e: CancellationException) {
+                FileUtils.deleteQuietly(cacheFile)
+                throw e
+            } catch (th: Exception) {
+                FileUtils.deleteQuietly(cacheFile)
+                emitError(
+                    androidText(R.string.account_change_skin_failed_to_import),
+                    androidText(th.getMessageOrToString())
+                )
+            } finally {
+                _accountSkinDialogState.update {
+                    it.copy(importingSkin = false)
+                }
             }
         }
     }
