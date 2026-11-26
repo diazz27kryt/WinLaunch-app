@@ -43,6 +43,7 @@ import com.movtery.zalithlauncher.game.support.lwjgl3ify.patchLwjgl3ifyIfNeeded
 import com.movtery.zalithlauncher.game.version.download.BaseMinecraftDownloader
 import com.movtery.zalithlauncher.game.version.download.DownloadMode
 import com.movtery.zalithlauncher.game.version.download.MinecraftDownloader
+import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionFolders
 import com.movtery.zalithlauncher.game.version.installed.VersionInfoParser
@@ -349,8 +350,12 @@ class GameLaunchFlow(scope: CoroutineScope) {
         val renderer = Renderers.setCurrentRenderer(version.getRenderer())
         val mcVer = version.getVersionInfo()?.minecraftVersion ?: version.getVersionName()
 
-        // 设备完全支持 Vulkan 时，游戏走 Vulkan 后端渲染，跳过渲染器的版本支持检查
-        if (version.hasVulkanBackend() && ensureVulkanSupported(version)) return
+        // 只有在版本设置为游戏默认图形 API 或 Vulkan 时，才允许跳过 OpenGL 渲染器检查。
+        // 用户明确选择 OpenGL（包括全局默认的 DEFAULT_OPENGL）时，即使客户端内置 Vulkan 后端，
+        // 也必须继续检查并使用所选的 OpenGL 渲染器，避免在不适合的 Vulkan 路те запуске.
+        val graphicsApi = version.getGraphicsApi()
+        val requestsVulkan = graphicsApi == GraphicsApi.DEFAULT || graphicsApi == GraphicsApi.VULKAN
+        if (requestsVulkan && version.hasVulkanBackend() && ensureVulkanSupported(version)) return
 
         val loaded = loadRenderer(renderer, version)
         // FPE 支持可来自 SFPEW 兼容层，也可来自检测到的 FPE 模拟模组
