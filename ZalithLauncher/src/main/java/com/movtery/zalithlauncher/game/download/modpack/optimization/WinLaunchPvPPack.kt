@@ -137,6 +137,7 @@ object WinLaunchPvPPack {
             zip.write(gson.toJson(manifest).toByteArray(Charsets.UTF_8))
             zip.closeEntry()
             WinVisualsBundle.addTo(zip, context, gameVersion)
+            WinZoomBundle.addTo(zip, context, gameVersion)
         }
         packFile
     }
