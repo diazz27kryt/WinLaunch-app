@@ -38,11 +38,11 @@ jobs:
       - name: Print screenshots
         if: always()
         run: |
-          find . -name 'wv_*.png' | sort | while read f; do
+          find / -name 'wv_*.png' -not -path '/proc/*' 2>/dev/null | sort | while read f; do
             n=$(basename "$f" .png)
             convert "$f" -resize 800x -quality 72 /tmp/$n.jpg
             echo "WVIMGSTART $n"
             base64 -w 400 /tmp/$n.jpg | sed 's/^/WVIMG /'
             echo "WVIMGEND $n"
           done
-          find . -name 'latest.log' -path '*clientGametest*' | head -1 | xargs -r tail -80
+          echo WVFILES; find / -name '*.png' -path '*screenshot*' -not -path '/proc/*' -not -path '/usr/*' 2>/dev/null | head -20; find / -name 'latest.log' -not -path '/proc/*' 2>/dev/null | head -3
