@@ -18,6 +18,9 @@
 
 package com.movtery.zalithlauncher.ui.screens.content
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -29,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -39,8 +43,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.entryProvider
 import com.movtery.zalithlauncher.R
 import com.movtery.zalithlauncher.ui.base.BaseScreen
@@ -127,46 +134,75 @@ private fun TabMenu(
     navigateTo: (TitledNavKey) -> Unit
 ) {
     val ctx = rememberAnimatedContext(isVisible = isVisible)
-
     val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
+            .width(154.dp)
+            .padding(start = 8.dp, top = 7.dp, bottom = 7.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0xFF11151B).copy(alpha = 0.94f))
+            .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(20.dp))
+            .padding(horizontal = 8.dp, vertical = 10.dp)
             .fadeEdge(scrollState)
-            .width(IntrinsicSize.Min)
-            .padding(start = 8.dp)
             .animated(ctx, from = AnimatedDirection.Left)
             .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Start
     ) {
-        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            modifier = Modifier.padding(start = 7.dp, top = 4.dp, bottom = 8.dp),
+            text = stringResource(R.string.generic_setting).uppercase(),
+            color = Color(0xFF9BA7B6),
+            style = MaterialTheme.typography.labelSmall,
+            letterSpacing = 1.4.sp
+        )
+
         settingItems.forEach { item ->
             if (item.division) {
                 HorizontalDivider(
                     modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(0.4f)
-                        .alpha(0.4f),
-                    color = MaterialTheme.colorScheme.onSurface
+                        .padding(vertical = 8.dp, horizontal = 5.dp)
+                        .fillMaxWidth()
+                        .alpha(0.35f),
+                    color = Color(0xFF8994A3)
                 )
             }
 
-            NavigationRailItem(
-                selected = settingsScreenKey == item.key,
-                onClick = {
-                    navigateTo(item.key)
-                },
-                icon = {
-                    item.icon()
-                },
-                label = {
-                    MarqueeText(
-                        text = stringResource(item.textRes),
-                        style = MaterialTheme.typography.labelMedium
+            val selected = settingsScreenKey == item.key
+            val shape = RoundedCornerShape(12.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .background(
+                        if (selected) Color.White.copy(alpha = 0.13f)
+                        else Color.Transparent
                     )
+                    .border(
+                        1.dp,
+                        if (selected) Color.White.copy(alpha = 0.13f)
+                        else Color.Transparent,
+                        shape
+                    )
+                    .clickable { navigateTo(item.key) }
+                    .padding(horizontal = 8.dp, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Box(
+                    modifier = Modifier.size(26.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    item.icon()
                 }
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+                MarqueeText(
+                    modifier = Modifier.weight(1f),
+                    text = stringResource(item.textRes),
+                    color = if (selected) Color.White else Color(0xFFB8C2D0),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }
