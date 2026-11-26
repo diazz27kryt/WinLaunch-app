@@ -352,7 +352,7 @@ class GameLaunchFlow(scope: CoroutineScope) {
 
         // 只有在版本设置为游戏默认图形 API 或 Vulkan 时，才允许跳过 OpenGL 渲染器检查。
         // 用户明确选择 OpenGL（包括全局默认的 DEFAULT_OPENGL）时，即使客户端内置 Vulkan 后端，
-        // 也必须继续检查并使用所选的 OpenGL 渲染器，避免在不适合的 Vulkan 路те запуске.
+        // 也必须继续检查并使用所选的 OpenGL 渲染器，避免错误地绕过 OpenGL 兼容性检查。
         val graphicsApi = version.getGraphicsApi()
         val requestsVulkan = graphicsApi == GraphicsApi.DEFAULT || graphicsApi == GraphicsApi.VULKAN
         if (requestsVulkan && version.hasVulkanBackend() && ensureVulkanSupported(version)) return
