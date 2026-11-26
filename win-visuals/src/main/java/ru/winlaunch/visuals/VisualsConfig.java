@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -96,6 +98,20 @@ public class VisualsConfig {
         skyIntensity = Math.max(0.1f, Math.min(skyIntensity, 2f));
         uiScale = Math.max(0.75f, Math.min(uiScale, 1.5f));
         backgroundDim = Math.max(0.2f, Math.min(backgroundDim, 0.9f));
+    }
+
+    /** Restores every option to its default value (the file is rewritten by the next save). */
+    public void resetToDefaults() {
+        VisualsConfig defaults = new VisualsConfig();
+        for (Field f : VisualsConfig.class.getDeclaredFields()) {
+            int m = f.getModifiers();
+            if (Modifier.isStatic(m) || Modifier.isFinal(m) || !Modifier.isPublic(m)) continue;
+            try {
+                f.set(this, f.get(defaults));
+            } catch (IllegalAccessException ignored) {
+                // public fields only, cannot happen
+            }
+        }
     }
 
     public void save() {
