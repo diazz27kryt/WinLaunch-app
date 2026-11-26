@@ -11,7 +11,13 @@ import ru.winlaunch.visuals.gui.WinVisualsScreen;
 public class WinVisualsClientTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext context) {
-        try (TestSingleplayerContext world = context.worldBuilder().create()) {
+        // Software rendering on a CI runner is slow, so keep chunk generation and drawing minimal.
+        context.runOnClient(client -> {
+            client.options.renderDistance().set(3);
+            client.options.simulationDistance().set(5);
+            client.options.framerateLimit().set(30);
+        });
+        try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).create()) {
             world.getServer().runCommand("time set midnight");
             world.getServer().runCommand("weather clear");
             world.getServer().runCommand("tp @p ~ ~ ~ 0 -55");
