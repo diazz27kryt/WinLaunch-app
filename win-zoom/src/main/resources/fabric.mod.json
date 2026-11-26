@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "winzoom",
+  "version": "${version}",
+  "name": "Win Zoom",
+  "description": "Hold Z to zoom. While holding, press hotbar slot 1 for 3x or 2 for 5x.",
+  "authors": ["WinLaunch"],
+  "license": "MIT",
+  "environment": "client",
+  "mixins": ["winzoom.mixins.json"],
+  "entrypoints": { "client": ["ru.winlaunch.zoom.WinZoom"] },
+  "depends": { "fabricloader": ">=0.16.0", "minecraft": "~1.21.11", "java": ">=21", "fabric-api": "*" }
+}

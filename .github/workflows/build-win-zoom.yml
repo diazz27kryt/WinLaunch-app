@@ -1,0 +1,57 @@
+name: Build Win Zoom
+
+# Builds the Win Zoom Fabric mod and commits the jar into the launcher assets,
+# where WinVisualsBundle picks it up when generating the WinLaunch packs.
+on:
+  push:
+    paths:
+      - 'win-zoom/**'
+      - '.github/workflows/build-win-zoom.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.0'
+
+      - name: Build mod
+        working-directory: win-zoom
+        run: gradle build --no-daemon
+
+      - name: Copy jar into launcher assets
+        run: |
+          JAR=$(find win-zoom/build/libs -name 'win-zoom-*.jar' ! -name '*-sources.jar' | head -n 1)
+          test -n "$JAR"
+          mkdir -p ZalithLauncher/src/main/assets/winzoom
+          cp "$JAR" ZalithLauncher/src/main/assets/winzoom/win-zoom.jar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-zoom
+          path: ZalithLauncher/src/main/assets/winzoom/win-zoom.jar
+
+      - name: Commit jar
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f ZalithLauncher/src/main/assets/winzoom/win-zoom.jar
+          if git diff --cached --quiet; then
+            echo "Jar unchanged"
+          else
+            git commit -m "Build Win Zoom jar [skip ci]"
+            git push
+          fi
