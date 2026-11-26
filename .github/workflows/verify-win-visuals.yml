@@ -40,13 +40,6 @@ jobs:
             if xvfb-run -a -s "-screen 0 960x540x24" gradle runClientGametest --no-daemon --stacktrace; then exit 0; fi
           done
           exit 1
-      - name: Peek gametest API
-        if: always()
-        run: |
-          J=$(find ~/.gradle -name 'fabric-client-gametest-api-v1*.jar' ! -name '*sources*' | head -1)
-          echo "WVAPI jar=$J"
-          javap -cp "$J" net.fabricmc.fabric.api.client.gametest.v1.world.TestWorldBuilder | sed 's/^/WVAPI /'
-          unzip -l "$J" | awk '{print $4}' | grep -i 'world' | sed 's/^/WVAPI /' | head -20
       - name: Print screenshots
         if: always()
         run: |

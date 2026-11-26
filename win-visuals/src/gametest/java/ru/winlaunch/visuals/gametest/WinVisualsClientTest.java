@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Screenshot;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import ru.winlaunch.visuals.VisualsConfig;
 import ru.winlaunch.visuals.WinVisuals;
 import ru.winlaunch.visuals.gui.WinVisualsScreen;
@@ -41,7 +42,19 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             client.options.simulationDistance().set(5);
             client.options.framerateLimit().set(10);   // keep the CPU free for the server while it generates the world
         });
-        try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).create()) {
+        try (TestSingleplayerContext world = context.worldBuilder()
+            .setUseConsistentSettings(false)
+            .adjustSettings(ui -> {
+                // A flat world is far cheaper to generate on a slow CI runner.
+                for (var entry : ui.getNormalPresetList()) {
+                    if (entry.preset() != null && entry.preset().is(WorldPresets.FLAT)) {
+                        ui.setWorldType(entry);
+                        break;
+                    }
+                }
+                ui.setGenerateStructures(false);
+            })
+            .create()) {
             context.runOnClient(client -> {
                 client.options.renderDistance().set(3);
                 client.options.framerateLimit().set(30);
