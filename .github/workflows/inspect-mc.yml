@@ -36,3 +36,9 @@ jobs:
           find /tmp/fapi -name '*.jar' | head -50
       - name: Queries
         run: bash .github/inspect/queries.sh /tmp/mcsrc /tmp/fapi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mcsrc
+          path: /tmp/mcsrc/net/minecraft/client
+          retention-days: 1
+          compression-level: 9
