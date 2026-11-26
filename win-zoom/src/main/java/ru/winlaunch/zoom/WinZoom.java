@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -21,7 +22,7 @@ public class WinZoom implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         zoomKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-            "key.winzoom.zoom", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.categories.winzoom"));
+            "key.winzoom.zoom", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, KeyMapping.Category.register(Identifier.fromNamespaceAndPath("winzoom", "main"))));
 
         // Start of tick runs before vanilla handles hotbar keys, so we can swallow them.
         ClientTickEvents.START_CLIENT_TICK.register(this::onTick);
