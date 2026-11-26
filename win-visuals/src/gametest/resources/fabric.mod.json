@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "winvisuals-gametest",
+  "version": "1.0.0",
+  "name": "Win Visuals game test",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["ru.winlaunch.visuals.gametest.WinVisualsClientTest"]
+  },
+  "depends": {
+    "winvisuals": "*"
+  }
+}

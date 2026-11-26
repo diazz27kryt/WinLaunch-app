@@ -188,6 +188,14 @@ public class WinVisualsScreen extends Screen {
 
     // ---------------------------------------------------------------- tabs
 
+    /** Switches to a tab by index (used by the in-CI game test as well). */
+    public void selectTab(int index) {
+        if (index >= 0 && index < TABS.length && index != tab) {
+            tab = index;
+            buildTab();
+        }
+    }
+
     private void buildTab() {
         rows.clear();
         active = null;

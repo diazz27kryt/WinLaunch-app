@@ -1,0 +1,47 @@
+name: Verify Win Visuals
+
+# Starts a real Minecraft 1.21.11 client (software OpenGL under Xvfb), checks that Right Shift opens
+# the menu, and prints screenshots of the sky and every tab (base64 JPEG, lines prefixed WVIMG).
+on:
+  push:
+    paths:
+      - 'win-visuals/**'
+      - '.github/workflows/verify-win-visuals.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.2.0'
+      - name: Install software OpenGL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1-mesa-dri libglx-mesa0 libegl1 libopenal1 imagemagick
+      - name: Run client game test
+        working-directory: win-visuals
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          GALLIUM_DRIVER: llvmpipe
+          MESA_GL_VERSION_OVERRIDE: '4.5'
+          MESA_GLSL_VERSION_OVERRIDE: '450'
+        run: xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGametest --no-daemon --stacktrace
+      - name: Print screenshots
+        if: always()
+        run: |
+          find . -name 'wv_*.png' | sort | while read f; do
+            n=$(basename "$f" .png)
+            convert "$f" -resize 800x -quality 72 /tmp/$n.jpg
+            echo "WVIMGSTART $n"
+            base64 -w 400 /tmp/$n.jpg | sed 's/^/WVIMG /'
+            echo "WVIMGEND $n"
+          done
+          find . -name 'latest.log' -path '*clientGametest*' | head -1 | xargs -r tail -80

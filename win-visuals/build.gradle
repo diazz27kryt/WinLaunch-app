@@ -27,6 +27,16 @@ loom {
     }
 }
 
+// Client game test: starts a real 1.21.11 client in CI, opens the menu and screenshots the sky.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "winvisuals-gametest"
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
 processResources {
     inputs.property "version", project.version
     filesMatching("fabric.mod.json") {
