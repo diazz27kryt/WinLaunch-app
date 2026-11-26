@@ -38,6 +38,7 @@ public class WinVisualsClientTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         // Software rendering on a CI runner is slow, so keep chunk generation and drawing minimal.
         context.runOnClient(client -> {
+            client.options.menuBackgroundBlurriness().set(0);   // the blur post-pass takes seconds per frame on software GL
             client.options.renderDistance().set(2);
             client.options.simulationDistance().set(5);
             client.options.framerateLimit().set(10);   // keep the CPU free for the server while it generates the world
