@@ -37,7 +37,8 @@ jobs:
           JAVA_TOOL_OPTIONS: '-Xmx3g -Xms1g -Xlog:gc:stdout'
         run: |
           (while true; do echo "WVTOP $(top -b -n1 | sed -n '7,10p' | cut -c1-90 | tr '\n' '|')"; sleep 25; done) &
-          for attempt in 1 2 3; do
+          (sleep 70; for k in 1 2 3; do for p in $(pgrep -f KnotClient); do echo "WVJ ===== dump $k pid $p"; jcmd $p Thread.print 2>/dev/null | awk '/^"(Render thread|Server thread|Test thread)"/{f=1;n=0} f{print; n++} n>16{f=0}' | sed 's/^/WVJ /'; done; sleep 25; done) &
+          for attempt in 1; do
             echo "WVATTEMPT $attempt"
             if xvfb-run -a -s "-screen 0 960x540x24" gradle runClientGametest --no-daemon --stacktrace; then exit 0; fi
           done
