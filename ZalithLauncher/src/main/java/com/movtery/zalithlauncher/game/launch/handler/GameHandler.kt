@@ -33,12 +33,12 @@ import com.movtery.zalithlauncher.game.control.ControlManager
 import com.movtery.zalithlauncher.game.input.EfficientAndroidLWJGLKeycode
 import com.movtery.zalithlauncher.game.input.LWJGLCharSender
 import com.movtery.zalithlauncher.game.launch.GameLauncher
+import com.movtery.zalithlauncher.game.launch.GraphicsOptions
 import com.movtery.zalithlauncher.game.launch.LaunchConfig
 import com.movtery.zalithlauncher.game.launch.MCOptions
 import com.movtery.zalithlauncher.game.launch.loadLanguage
 import com.movtery.zalithlauncher.game.sdl.SdlBridge
 import com.movtery.zalithlauncher.game.sdl.handleGamepadKeyEvent
-import com.movtery.zalithlauncher.game.version.installed.GraphicsApi
 import com.movtery.zalithlauncher.game.version.installed.utils.isLowerVer
 import com.movtery.zalithlauncher.setting.ControlSettings
 import com.movtery.zalithlauncher.setting.GameUiSettings
@@ -116,16 +116,12 @@ class GameHandler(
             set("overrideWidth", screenSize.width.toString())
             set("overrideHeight", screenSize.height.toString())
 
-            val graphicsApi = version.getGraphicsApi()
-            val graphicsOption = "preferredGraphicsBackend"
-            when (graphicsApi) {
-                GraphicsApi.DEFAULT, GraphicsApi.DEFAULT_OPENGL -> {
-                    if (!containsKey(graphicsOption)) {
-                        set(graphicsOption, graphicsApi.option)
-                    }
-                }
-                else -> set(graphicsOption, graphicsApi.option)
-            }
+            // Choose OpenGL/Vulkan under every option key Mojang has used (26.2 snapshots to 26.4).
+            GraphicsOptions.apply(
+                api = version.getGraphicsApi(),
+                get = { key -> get(key) },
+                set = { key, value -> set(key, value) }
+            )
 
             loadLanguage(version.getVersionInfo()!!.minecraftVersion)
             save()
