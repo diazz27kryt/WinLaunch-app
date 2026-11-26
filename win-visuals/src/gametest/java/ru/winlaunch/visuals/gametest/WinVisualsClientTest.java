@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Screenshot;
 import ru.winlaunch.visuals.VisualsConfig;
 import ru.winlaunch.visuals.WinVisuals;
@@ -59,6 +61,13 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             world.getServer().runCommand("tp @p ~ ~ ~ 20 -12");
             context.waitTicks(10);
             shot(context, "wv_sky_horizon");
+
+            // Holding Z zooms in.
+            context.runOnClient(client -> KeyMapping.set(InputConstants.Type.KEYSYM.getOrCreate(org.lwjgl.glfw.GLFW.GLFW_KEY_Z), true));
+            context.waitTicks(20);
+            shot(context, "wv_zoom");
+            context.runOnClient(client -> KeyMapping.set(InputConstants.Type.KEYSYM.getOrCreate(org.lwjgl.glfw.GLFW.GLFW_KEY_Z), false));
+            context.waitTicks(10);
 
             // Right Shift must open the menu.
             context.getInput().pressKey(WinVisuals.openKey());

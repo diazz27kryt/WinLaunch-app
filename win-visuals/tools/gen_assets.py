@@ -271,6 +271,15 @@ def palette():
     return img
 
 
+def zoom():
+    img, d = new()
+    d.ellipse((24, 24, 184, 184), outline=W, width=22)
+    line(d, [(160, 160), (226, 226)], 28)
+    line(d, [(72, 104), (136, 104)], 16)
+    line(d, [(104, 72), (104, 136)], 16)
+    return img
+
+
 # ------------------------------------------------------------------ chrome
 def round_rect(name, stroke=0, size=64, radius=24):
     big = 4 * size
@@ -362,7 +371,7 @@ def logo():
 ICONS = dict(moon=moon, sparkle=sparkle, particles=particles, monitor=monitor, gear=gear, aurora=aurora, sun=sun,
              star=star, spiral=spiral, cloud=cloud, check=check, refresh=refresh, minus=minus, close=close, cube=cube,
              bolt=bolt, burst=burst, arrow_up=arrow_up, grid=grid, expand=expand, users=users, ring=ring,
-             palette=palette)
+             palette=palette, zoom=zoom)
 
 if __name__ == "__main__":
     for n, fn in ICONS.items():

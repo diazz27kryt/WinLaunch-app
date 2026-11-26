@@ -78,5 +78,10 @@
   "winvisuals.gui.opt.config": "Config file",
   "winvisuals.gui.desc.config": "Where the settings live",
   "winvisuals.gui.do.save": "Save",
-  "winvisuals.gui.do.reset": "Reset"
+  "winvisuals.gui.do.reset": "Reset",
+  "winvisuals.gui.opt.zoom": "Zoom on Z",
+  "winvisuals.gui.desc.zoom": "Zoom in while holding the key",
+  "winvisuals.gui.opt.zoomfactor": "Zoom strength",
+  "winvisuals.gui.desc.zoomfactor": "How far the view zooms in",
+  "key.winvisuals.zoom": "Zoom"
 }

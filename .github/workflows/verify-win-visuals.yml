@@ -37,7 +37,7 @@ jobs:
         run: |
           for attempt in 1 2 3; do
             echo "WVATTEMPT $attempt"
-            if xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGametest --no-daemon --stacktrace; then exit 0; fi
+            if xvfb-run -a -s "-screen 0 960x540x24" gradle runClientGametest --no-daemon --stacktrace; then exit 0; fi
           done
           exit 1
       - name: Print screenshots

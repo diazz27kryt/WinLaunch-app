@@ -78,5 +78,10 @@
   "winvisuals.gui.opt.config": "Файл конфигурации",
   "winvisuals.gui.desc.config": "Расположение настроек",
   "winvisuals.gui.do.save": "Сохранить",
-  "winvisuals.gui.do.reset": "Сбросить"
+  "winvisuals.gui.do.reset": "Сбросить",
+  "winvisuals.gui.opt.zoom": "Зум на Z",
+  "winvisuals.gui.desc.zoom": "Приближение при удержании клавиши",
+  "winvisuals.gui.opt.zoomfactor": "Сила зума",
+  "winvisuals.gui.desc.zoomfactor": "Во сколько раз приближать",
+  "key.winvisuals.zoom": "Зум"
 }

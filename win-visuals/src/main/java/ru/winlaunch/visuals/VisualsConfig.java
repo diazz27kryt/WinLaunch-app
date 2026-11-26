@@ -26,6 +26,9 @@ public class VisualsConfig {
     public boolean skyFog = false;
     public float skyIntensity = 1.0f;
 
+    public boolean zoomEnabled = true;
+    public float zoomFactor = 4.0f;
+
     public boolean showHud = true;
     public boolean uiAnimations = true;
     public boolean compactUi = false;
