@@ -161,7 +161,8 @@ private fun WinLaunchDashboard(
     val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
     val versions by VersionsManager.versions.collectAsStateWithLifecycle()
     val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-    val isReady = !isRefreshing && currentVersion != null && currentVersion.isValid()
+    val selectedVersion = currentVersion
+    val isReady = !isRefreshing && selectedVersion != null && selectedVersion.isValid()
     val ramMb = GameSettings.ramAllocation.state
     val ramText = when {
         ramMb == null -> "—"
