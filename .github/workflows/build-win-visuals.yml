@@ -1,7 +1,8 @@
 name: Build Win Visuals
 
-# Builds the Win Visuals Fabric mod and commits the jar into the launcher assets,
-# where WinVisualsBundle picks it up when generating the WinLaunch packs.
+# Builds the Win Visuals Fabric mod (Minecraft 1.21.11) and commits the jar into the launcher assets,
+# where WinVisualsBundle picks it up when generating the WinLaunch packs. The 1.21.1 build is kept
+# as win-visuals-1.21.1.jar and is not touched by this workflow.
 on:
   push:
     paths:
@@ -36,19 +37,19 @@ jobs:
           JAR=$(find win-visuals/build/libs -name 'win-visuals-*.jar' ! -name '*-sources.jar' | head -n 1)
           test -n "$JAR"
           mkdir -p ZalithLauncher/src/main/assets/winvisuals
-          cp "$JAR" ZalithLauncher/src/main/assets/winvisuals/win-visuals.jar
+          cp "$JAR" ZalithLauncher/src/main/assets/winvisuals/win-visuals-1.21.11.jar
 
       - uses: actions/upload-artifact@v4
         with:
           name: win-visuals
-          path: ZalithLauncher/src/main/assets/winvisuals/win-visuals.jar
+          path: ZalithLauncher/src/main/assets/winvisuals/win-visuals-1.21.11.jar
 
       - name: Commit jar
         if: github.ref == 'refs/heads/main'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f ZalithLauncher/src/main/assets/winvisuals/win-visuals.jar
+          git add -f ZalithLauncher/src/main/assets/winvisuals/win-visuals-1.21.11.jar
           if git diff --cached --quiet; then
             echo "Jar unchanged"
           else

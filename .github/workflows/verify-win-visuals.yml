@@ -33,7 +33,7 @@ jobs:
           GALLIUM_DRIVER: llvmpipe
           MESA_GL_VERSION_OVERRIDE: '4.5'
           MESA_GLSL_VERSION_OVERRIDE: '450'
-          LP_NUM_THREADS: '2'
+          LP_NUM_THREADS: '1'
         run: |
           for attempt in 1 2 3; do
             echo "WVATTEMPT $attempt"

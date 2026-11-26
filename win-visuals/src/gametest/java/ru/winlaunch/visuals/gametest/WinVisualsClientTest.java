@@ -37,11 +37,15 @@ public class WinVisualsClientTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext context) {
         // Software rendering on a CI runner is slow, so keep chunk generation and drawing minimal.
         context.runOnClient(client -> {
-            client.options.renderDistance().set(3);
+            client.options.renderDistance().set(2);
             client.options.simulationDistance().set(5);
-            client.options.framerateLimit().set(30);
+            client.options.framerateLimit().set(10);   // keep the CPU free for the server while it generates the world
         });
         try (TestSingleplayerContext world = context.worldBuilder().setUseConsistentSettings(false).create()) {
+            context.runOnClient(client -> {
+                client.options.renderDistance().set(3);
+                client.options.framerateLimit().set(30);
+            });
             world.getServer().runCommand("time set midnight");
             world.getServer().runCommand("weather clear");
             world.getServer().runCommand("tp @p ~ ~ ~ 20 -38");
