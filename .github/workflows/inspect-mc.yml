@@ -23,10 +23,11 @@ jobs:
           gradle-version: '9.2.0'
       - name: Decompile Minecraft
         working-directory: win-visuals
-        run: gradle genSources --no-daemon -q
+        run: gradle genSources --no-daemon
       - name: Extract sources and Fabric API
         run: |
-          SRC=$(find ~/.gradle -name '*sources.jar' -path '*minecraft*' | grep -v fabric-api | head -n 1)
+          find ~/.gradle win-visuals/.gradle -name '*sources*.jar' 2>/dev/null | head -20
+          SRC=$(find ~/.gradle win-visuals/.gradle -name '*sources*.jar' 2>/dev/null | grep -i -E 'minecraft' | grep -v -i 'fabric-api\|fabric-loader' | head -n 1)
           echo "minecraft sources: $SRC"
           mkdir -p /tmp/mcsrc && unzip -q -o "$SRC" -d /tmp/mcsrc
           FAPI=$(find ~/.gradle -name 'fabric-api-*.jar' ! -name '*sources*' | head -n 1)
