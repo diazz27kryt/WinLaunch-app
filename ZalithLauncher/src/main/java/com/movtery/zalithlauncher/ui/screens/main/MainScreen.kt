@@ -27,9 +27,12 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -61,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
@@ -68,8 +72,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.entryProvider
@@ -177,7 +183,7 @@ fun MainScreen(
             TopBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp),
+                    .height(52.dp),
                 mainScreenKey = mainScreenKey,
                 inLauncherScreen = inLauncherScreen,
                 taskRunning = taskRunning,
@@ -262,203 +268,171 @@ private fun <E: TitledNavKey> TopBar(
     openFileManager: () -> Unit,
     changeExpandedState: () -> Unit,
 ) {
-    val festivals = LocalFestivals.current
-
     val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
     val inDownloadScreen = mainScreenKey is NestedNavKey.Download
     val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
+    val parentRes = mainScreenKey?.title
+    val childRes = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
-    CompositionLocalProvider(
-        LocalContentColor provides contentColor
-    ) {
-        ConstraintLayout(modifier = modifier) {
-            val (backCenter, title, endButtons) = createRefs()
-
-            val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-
-            Row(
-                modifier = Modifier
-                    .constrainAs(backCenter) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                    }
-                    .fillMaxHeight()
-            ) {
-                AnimatedVisibility(
-                    visible = !inLauncherScreen
-                ) {
-                    Row(modifier = Modifier.fillMaxHeight()) {
-                        Spacer(Modifier.width(12.dp))
-
-                        IconButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            onClick = {
-                                if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许返回
-                                    backDispatcher?.onBackPressed() ?: run {
-                                        onScreenBack()
-                                    }
-                                }
-                            }
-                        ) {
-                            Icon(
-                                modifier = Modifier.size(24.dp),
-                                painter = painterResource(R.drawable.ic_arrow_back),
-                                contentDescription = stringResource(R.string.generic_back)
-                            )
-                        }
-
-                        IconButton(
-                            modifier = Modifier.fillMaxHeight(),
-                            onClick = {
-                                if (!inLauncherScreen) {
-                                    //不在主屏幕时才允许回到主页面
-                                    toMainScreen()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_home_filled),
-                                contentDescription = stringResource(R.string.generic_main_menu)
-                            )
-                        }
-                    }
-                }
-            }
-            val parentRes = mainScreenKey?.title
-            val childRes = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title
-
-            Crossfade(
-                modifier = Modifier.constrainAs(title) {
-                    centerVerticallyTo(parent)
-                    start.linkTo(backCenter.end, margin = 16.dp)
-                },
-                targetState = parentRes to childRes
-            ) { (parent, child) ->
-                val style = MaterialTheme.typography.titleMedium
-                val softWarp = false
-                val maxLines = 1
-
-                if (parent == null) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        if (festivals.isEmpty()) {
-                            Text(
-                                text = BuildKeys.LAUNCHER_IDENTIFIER,
-                                style = style,
-                                softWrap = softWarp,
-                                maxLines = maxLines
-                            )
-                        } else {
-                            FestivalTitleText(
-                                festivals = festivals,
-                                style = style,
-                                maxLines = maxLines
-                            )
-                        }
-                        // Required by the upstream license (GPLv3 section 7(c)): modified versions must be
-                        // clearly marked as unofficial on the main interface.
-                        Text(
-                            text = stringResource(R.string.unofficial_modified_version),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            softWrap = false,
-                            maxLines = 1
+    CompositionLocalProvider(LocalContentColor provides contentColor) {
+        Row(
+            modifier = modifier
+                .clip(RoundedCornerShape(18.dp))
+                .background(
+                    Brush.horizontalGradient(
+                        listOf(
+                            Color(0xFF171B22),
+                            Color(0xFF101319),
+                            Color(0xFF171B22)
                         )
-                    }
-                } else {
-                    val titleText = if (child != null) {
-                        androidText(parent, androidText(" - "), child)
-                    } else {
-                        parent
-                    }
-
-                    AndroidStringText(
-                        text = titleText,
-                        style = style,
-                        softWrap = softWarp,
-                        maxLines = maxLines
                     )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .constrainAs(endButtons) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(parent.bottom)
-                        end.linkTo(parent.end, margin = 12.dp)
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                AnimatedVisibility(
-                    visible = !(isTasksExpanded || taskRunning),
-                    enter = slideInVertically(
-                        initialOffsetY = { -50 }
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { -50 }
-                    ) + fadeOut()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .clip(shape = MaterialTheme.shapes.large)
-                            .clickable { changeExpandedState() }
-                            .padding(all = 8.dp)
-                            .width(120.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        LinearProgressIndicator(modifier = Modifier.weight(1f))
-                        Icon(
-                            modifier = Modifier.size(22.dp),
-                            painter = painterResource(R.drawable.ic_assignment_filled),
-                            contentDescription = stringResource(R.string.main_task_menu)
-                        )
-                    }
-                }
-
+                )
+                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(18.dp))
+                .padding(horizontal = 8.dp, vertical = 3.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            if (!inLauncherScreen) {
                 IconButton(
-                    onClick = openFileManager
+                    onClick = {
+                        backDispatcher?.onBackPressed() ?: onScreenBack()
+                    }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_folder_filled),
-                        contentDescription = null
+                        painter = painterResource(R.drawable.ic_arrow_back),
+                        contentDescription = stringResource(R.string.generic_back),
+                        tint = Color(0xFFE7EAF0)
                     )
                 }
-
-                TopBarRailItem(
-                    selected = inMultiplayerScreen,
-                    painter = painterResource(R.drawable.ic_group_filled),
-                    text = stringResource(R.string.terracotta),
-                    onClick = {
-                        if (!inMultiplayerScreen) toMultiplayerScreen()
-                    },
-                )
-
-                TopBarRailItem(
-                    selected = inDownloadScreen,
-                    painter = painterResource(R.drawable.ic_download_2_filled),
-                    text = stringResource(R.string.generic_download),
-                    onClick = {
-                        if (!inDownloadScreen) toDownloadScreen()
-                    },
-                )
-
-                TopBarRailItem(
-                    selected = inSettingsScreen,
-                    painter = painterResource(R.drawable.ic_settings_filled),
-                    text = stringResource(R.string.generic_setting),
-                    onClick = {
-                        if (!inSettingsScreen) toSettingsScreen()
-                    },
-                )
+                IconButton(
+                    onClick = toMainScreen
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_home_filled),
+                        contentDescription = stringResource(R.string.generic_main_menu),
+                        tint = Color(0xFFB8C1CE)
+                    )
+                }
             }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                if (inLauncherScreen || parentRes == null) {
+                    Text(
+                        text = "WINLAUNCH",
+                        color = Color(0xFFF0F2F5),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = stringResource(R.string.unofficial_modified_version),
+                        color = Color(0xFF9AA5B4),
+                        fontSize = 8.sp,
+                        letterSpacing = 0.5.sp,
+                        maxLines = 1
+                    )
+                } else {
+                    val titleText = if (childRes != null) {
+                        androidText(parentRes, androidText(" / "), childRes)
+                    } else {
+                        parentRes
+                    }
+                    AndroidStringText(
+                        text = titleText,
+                        style = MaterialTheme.typography.titleSmall,
+                        softWrap = false,
+                        maxLines = 1
+                    )
+                    Text(
+                        text = "WINLAUNCH CONTROL",
+                        color = Color(0xFF9AA5B4),
+                        fontSize = 8.sp,
+                        letterSpacing = 1.2.sp,
+                        maxLines = 1
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = !(isTasksExpanded || taskRunning),
+                enter = slideInVertically(initialOffsetY = { -40 }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -40 }) + fadeOut()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White.copy(alpha = 0.055f))
+                        .clickable(onClick = changeExpandedState)
+                        .padding(horizontal = 8.dp, vertical = 7.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.width(35.dp),
+                        color = Color(0xFFE2E8F0),
+                        trackColor = Color.White.copy(alpha = 0.12f)
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_assignment_filled),
+                        contentDescription = stringResource(R.string.main_task_menu),
+                        tint = Color(0xFFD8DEE8),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
+
+            CompactIconAction(
+                painter = painterResource(R.drawable.ic_folder_filled),
+                description = "Файлы",
+                onClick = openFileManager
+            )
+
+            TopBarRailItem(
+                selected = inMultiplayerScreen,
+                painter = painterResource(R.drawable.ic_group_filled),
+                text = stringResource(R.string.terracotta),
+                onClick = { if (!inMultiplayerScreen) toMultiplayerScreen() }
+            )
+            TopBarRailItem(
+                selected = inDownloadScreen,
+                painter = painterResource(R.drawable.ic_download_2_filled),
+                text = stringResource(R.string.generic_download),
+                onClick = { if (!inDownloadScreen) toDownloadScreen() }
+            )
+            TopBarRailItem(
+                selected = inSettingsScreen,
+                painter = painterResource(R.drawable.ic_settings_filled),
+                text = stringResource(R.string.generic_setting),
+                onClick = { if (!inSettingsScreen) toSettingsScreen() }
+            )
         }
+    }
+}
+
+@Composable
+private fun CompactIconAction(
+    painter: Painter,
+    description: String,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .padding(8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = description,
+            tint = Color(0xFFD8DEE8),
+            modifier = Modifier.size(20.dp)
+        )
     }
 }
 
@@ -471,30 +445,42 @@ private fun TopBarRailItem(
     onClick: () -> Unit = {},
     textStyle: TextStyle = MaterialTheme.typography.labelMedium
 ) {
-    TextRailItem(
-        modifier = modifier,
-        onClick = onClick,
-        text = {
-            AnimatedVisibility(visible = selected) {
-                Row {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = text,
-                        style = textStyle
-                    )
-                }
-            }
-        },
-        icon = {
-            Icon(
-                painter = painter,
-                contentDescription = text
+    val shape = RoundedCornerShape(12.dp)
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .background(
+                if (selected) Color.White.copy(alpha = 0.13f)
+                else Color.Transparent
             )
-        },
-        selected = selected,
-        selectedPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-        unSelectedPadding = PaddingValues(all = 8.dp),
-    )
+            .border(
+                1.dp,
+                if (selected) Color.White.copy(alpha = 0.16f) else Color.Transparent,
+                shape
+            )
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = if (selected) 10.dp else 8.dp,
+                vertical = 8.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = text,
+            tint = if (selected) Color.White else Color(0xFFB8C1CE),
+            modifier = Modifier.size(19.dp)
+        )
+        AnimatedVisibility(visible = selected) {
+            Text(
+                text = text,
+                style = textStyle,
+                color = Color.White,
+                maxLines = 1
+            )
+        }
+    }
 }
 
 @Composable
