@@ -13,7 +13,7 @@ import ru.winlaunch.visuals.VisualsConfig;
 /** Draws the Win Visuals night sky inside the 1.21.11 sky render pass. */
 @Mixin(SkyRenderer.class)
 public abstract class SkyRendererMixin {
-    @Inject(method = "method_62307", at = @At("HEAD"), remap = false)
+    @Inject(method = "renderSunMoonAndStars", at = @At("HEAD"))
     private void winvisuals$drawAurora(PoseStack poseStack, float sunAngle, float moonAngle,
                                        float starAngle, MoonPhase moonPhase, float rainBrightness,
                                        float starBrightness, CallbackInfo ci) {
