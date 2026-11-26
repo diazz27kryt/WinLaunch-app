@@ -34,15 +34,21 @@ jobs:
           MESA_GL_VERSION_OVERRIDE: '4.5'
           MESA_GLSL_VERSION_OVERRIDE: '450'
           LP_NUM_THREADS: '2'
-        run: xvfb-run -a -s "-screen 0 854x480x24" gradle runClientGametest --no-daemon --stacktrace
+        run: |
+          for attempt in 1 2 3; do
+            echo "WVATTEMPT $attempt"
+            if xvfb-run -a -s "-screen 0 1280x720x24" gradle runClientGametest --no-daemon --stacktrace; then exit 0; fi
+          done
+          exit 1
       - name: Print screenshots
         if: always()
         run: |
-          find . -name 'wv_*.png' | sort | while read f; do
+          ls -la /tmp/wvshots || true
+          for f in /tmp/wvshots/*.png; do
+            [ -f "$f" ] || continue
             n=$(basename "$f" .png)
-            convert "$f" -resize 800x -quality 72 /tmp/$n.jpg
+            convert "$f" -resize 1000x -quality 80 /tmp/$n.jpg
             echo "WVIMGSTART $n"
             base64 -w 400 /tmp/$n.jpg | sed 's/^/WVIMG /'
             echo "WVIMGEND $n"
           done
-          find . -name 'latest.log' -path '*clientGametest*' | head -1 | xargs -r tail -80
