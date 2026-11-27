@@ -786,6 +786,9 @@ private fun AccountSkinOperation(
                         AccountManageIntent.OnSkinPicked(uri)
                     )
                 },
+                onStockSkinSelected = {
+                    actions.onIntent(AccountManageIntent.OnStockSkinSelected)
+                },
                 onDismissRequest = {
                     actions.onIntent(AccountManageIntent.ResetAccountSkinDialogState)
                     actions.onIntent(AccountManageIntent.UpdateAccountSkinOp(AccountSkinOperation.None))

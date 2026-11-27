@@ -1411,6 +1411,7 @@ fun ChangeSkinDialog(
     onCapeStateChange: (ChangeCape) -> Unit,
     isImportingSkin: Boolean,
     onSkinPicked: (Uri) -> Unit,
+    onStockSkinSelected: () -> Unit,
     onDismissRequest: () -> Unit,
     onResetSkin: () -> Unit,
     onApplySkin: (File, SkinModelType) -> Unit,
@@ -1554,28 +1555,47 @@ fun ChangeSkinDialog(
                             //更换皮肤：选择皮肤图片文件
                             when (skinState) {
                                 ChangeSkin.None, ChangeSkin.ResetSkin -> {
-                                    InfoLayoutTextItem(
+                                    Column(
                                         modifier = Modifier.fillMaxWidth(),
-                                        title = stringResource(R.string.account_change_skin),
-                                        icon = {
-                                            if (isImportingSkin) {
-                                                CircularProgressIndicator(
-                                                    modifier = Modifier.size(22.dp),
-                                                    strokeWidth = 2.dp
-                                                )
-                                            } else {
+                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        InfoLayoutTextItem(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            title = stringResource(R.string.account_change_skin),
+                                            icon = {
+                                                if (isImportingSkin) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.size(22.dp),
+                                                        strokeWidth = 2.dp
+                                                    )
+                                                } else {
+                                                    Icon(
+                                                        modifier = Modifier.size(22.dp),
+                                                        painter = painterResource(R.drawable.ic_upload),
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                skinPicker.launch(arrayOf("image/png"))
+                                            },
+                                            enabled = !isImportingSkin
+                                        )
+
+                                        InfoLayoutTextItem(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            title = "Фирменный скин WinLaunch",
+                                            icon = {
                                                 Icon(
                                                     modifier = Modifier.size(22.dp),
-                                                    painter = painterResource(R.drawable.ic_upload),
+                                                    painter = painterResource(R.drawable.ic_checkroom),
                                                     contentDescription = null
                                                 )
-                                            }
-                                        },
-                                        onClick = {
-                                            skinPicker.launch(arrayOf("image/png"))
-                                        },
-                                        enabled = !isImportingSkin
-                                    )
+                                            },
+                                            onClick = onStockSkinSelected,
+                                            enabled = !isImportingSkin
+                                        )
+                                    }
                                 }
 
                                 is ChangeSkin.ChangeSkinData -> {
