@@ -203,7 +203,7 @@ public class WinVisualsScreen extends Screen {
     }
 
     private int navY(int i) {
-        return py + 88 + i * 23;
+        return py + 85 + i * 21;
     }
 
     private void renderHeader(GuiGraphics g, double mx, double my, float ease) {
