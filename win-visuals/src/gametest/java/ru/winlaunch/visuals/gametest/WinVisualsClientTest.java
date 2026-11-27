@@ -80,13 +80,6 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             context.waitTicks(10);
             shot(context, "wv_sky_horizon");
 
-            // Holding Z zooms in.
-            context.runOnClient(client -> KeyMapping.set(InputConstants.Type.KEYSYM.getOrCreate(org.lwjgl.glfw.GLFW.GLFW_KEY_Z), true));
-            context.waitTicks(20);
-            shot(context, "wv_zoom");
-            context.runOnClient(client -> KeyMapping.set(InputConstants.Type.KEYSYM.getOrCreate(org.lwjgl.glfw.GLFW.GLFW_KEY_Z), false));
-            context.waitTicks(10);
-
             // Right Shift must open the menu.
             context.getInput().pressKey(WinVisuals.openKey());
             context.waitTicks(10);

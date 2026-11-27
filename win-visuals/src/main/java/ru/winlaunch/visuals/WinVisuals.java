@@ -47,9 +47,6 @@ public class WinVisuals implements ClientModInitializer {
         openKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
             "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.register(Identifier.fromNamespaceAndPath("winvisuals", "main"))));
 
-        Zoom.bind(KeyBindingHelper.registerKeyBinding(new KeyMapping(
-            "key.winvisuals.zoom", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, openKey.getCategory())));
-
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
 
         HudRenderCallback.EVENT.register((gui, tickDelta) -> {

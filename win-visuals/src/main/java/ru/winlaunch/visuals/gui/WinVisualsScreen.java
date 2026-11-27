@@ -475,7 +475,6 @@ public class WinVisualsScreen extends Screen {
                 rows.add(toggle("burst", "hits", () -> cfg.hitEffects, v -> cfg.hitEffects = v));
                 rows.add(toggle("arrow_up", "jump", () -> cfg.jumpEffects, v -> cfg.jumpEffects = v));
                 rows.add(toggle("ring", "landing", () -> cfg.landingEffects, v -> cfg.landingEffects = v));
-                rows.add(toggle("zoom", "zoom", () -> cfg.zoomEnabled, v -> cfg.zoomEnabled = v));
             }
             case "particles" -> {
                 rows.add(modes());
@@ -495,7 +494,6 @@ public class WinVisualsScreen extends Screen {
             }
             case "settings" -> {
                 rows.add(toggle("gear", "enabled", () -> cfg.enabled, v -> cfg.enabled = v));
-                rows.add(slider("zoom", "zoomfactor", 1.5f, 10f, 0.5f, () -> cfg.zoomFactor, v -> cfg.zoomFactor = v, Fmt.TIMES));
                 rows.add(action("check", "save", t("do.save"), () -> {
                     cfg.save();
                     flashUntil = System.currentTimeMillis() + 500;
