@@ -90,7 +90,7 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             }
             context.waitTicks(30);
             shot(context, "wv_gui_0");
-            for (int tab = 1; tab < 5; tab++) {
+            for (int tab = 1; tab < 6; tab++) {
                 final int t = tab;
                 context.runOnClient(client -> ((WinVisualsScreen) client.screen).selectTab(t));
                 context.waitTicks(10);
@@ -116,6 +116,22 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             });
             context.waitTicks(4);
             shot(context, "wv_particles");
+
+            // Cosmetics: from behind and from the front, first the reference look, then the halo.
+            world.getServer().runCommand("difficulty peaceful");
+            world.getServer().runCommand("time set 12800");
+            world.getServer().runCommand("tp @p ~ ~ ~ 20 12");
+            cfg.cosmeticHat = true;
+            cfg.cosmeticWings = true;
+            context.waitTicks(80);
+            shot(context, "wv_cosmetic_back");
+            context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+            context.waitTicks(10);
+            shot(context, "wv_cosmetic_front");
+            cfg.cosmeticHat = false;
+            cfg.cosmeticHalo = true;
+            context.waitTicks(10);
+            shot(context, "wv_cosmetic_halo");
             System.out.println("WVTEST done");
         }
     }

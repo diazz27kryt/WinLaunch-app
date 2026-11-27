@@ -57,6 +57,11 @@ public class VisualsConfig {
     public boolean jumpEffects = true;
     public int jumpParticles = 14;
 
+    /** Cosmetics drawn on the player; visible in third person. */
+    public boolean cosmeticHalo = false;
+    public boolean cosmeticHat = false;
+    public boolean cosmeticWings = false;
+
     public boolean landingEffects = true;
     public int landingParticles = 18;
 

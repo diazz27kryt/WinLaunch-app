@@ -5,6 +5,9 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import ru.winlaunch.visuals.cosmetic.CosmeticsLayer;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
@@ -48,6 +51,12 @@ public class WinVisuals implements ClientModInitializer {
             "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.register(Identifier.fromNamespaceAndPath("winvisuals", "main"))));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+
+        LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
+            if (renderer instanceof AvatarRenderer<?> avatar) {
+                helper.register(new CosmeticsLayer(avatar));
+            }
+        });
 
         HudRenderCallback.EVENT.register((gui, tickDelta) -> {
             Minecraft client = Minecraft.getInstance();

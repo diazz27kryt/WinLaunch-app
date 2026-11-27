@@ -42,8 +42,8 @@ public class WinVisualsScreen extends Screen {
     private static final int TEXT = 0xFFF5F5F7;
     private static final int TEXT_DIM = 0xFF8E8E96;
 
-    private static final String[] TABS = {"sky", "visuals", "particles", "interface", "settings"};
-    private static final String[] TAB_ICONS = {"moon", "sparkle", "particles", "monitor", "gear"};
+    private static final String[] TABS = {"sky", "visuals", "particles", "cosmetics", "interface", "settings"};
+    private static final String[] TAB_ICONS = {"moon", "sparkle", "particles", "star", "monitor", "gear"};
     private static final int[] PRESETS = {
         0xFFFFFF, 0xC8C8CE, 0xFF8FB8, 0xFF5C8A, 0xB48CFF, 0x6FB8FF, 0x5CF2C0, 0xFFD86B
     };
@@ -185,12 +185,12 @@ public class WinVisualsScreen extends Screen {
         for (int i = 0; i < TABS.length; i++) {
             int ty = navY(i);
             boolean sel = i == tab;
-            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 20);
-            panel(g, FILL, sx + 6, ty, sw - 12, 20, 6,
+            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 17);
+            panel(g, FILL, sx + 6, ty, sw - 12, 17, 6,
                 a(sel ? 0x38FFFFFF : (hov ? 0x1CFFFFFF : 0x66000000), ease));
-            panel(g, STROKE, sx + 6, ty, sw - 12, 20, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
-            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 4, 12, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
-            text(g, t("tab." + TABS[i]), sx + 30, ty + 6, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
+            panel(g, STROKE, sx + 6, ty, sw - 12, 17, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
+            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 3, 11, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
+            text(g, t("tab." + TABS[i]), sx + 30, ty + 5, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
         }
 
         // footer card
@@ -203,7 +203,7 @@ public class WinVisualsScreen extends Screen {
     }
 
     private int navY(int i) {
-        return py + 85 + i * 21;
+        return py + 84 + i * 18;
     }
 
     private void renderHeader(GuiGraphics g, double mx, double my, float ease) {
@@ -375,7 +375,7 @@ public class WinVisualsScreen extends Screen {
         if (collapsed) return true;
 
         for (int i = 0; i < TABS.length; i++) {
-            if (inside(mx, my, px + 10, navY(i), SW - 16, 20)) {
+            if (inside(mx, my, px + 10, navY(i), SW - 16, 17)) {
                 selectTab(i);
                 return true;
             }
@@ -483,6 +483,11 @@ public class WinVisualsScreen extends Screen {
                 rows.add(slider("ring", "size", 0.3f, 3f, 0.1f, () -> cfg.particleSize, v -> cfg.particleSize = v, Fmt.TIMES));
                 rows.add(slider("particles", "density", 0, 10, 1, () -> (float) cfg.trailDensity, v -> cfg.trailDensity = Math.round(v), Fmt.INT));
                 rows.add(toggle("sparkle", "reduced", () -> cfg.reducedParticles, v -> cfg.reducedParticles = v));
+            }
+            case "cosmetics" -> {
+                rows.add(toggle("ring", "halo", () -> cfg.cosmeticHalo, v -> cfg.cosmeticHalo = v));
+                rows.add(toggle("burst", "hat", () -> cfg.cosmeticHat, v -> cfg.cosmeticHat = v));
+                rows.add(toggle("sparkle", "wings", () -> cfg.cosmeticWings, v -> cfg.cosmeticWings = v));
             }
             case "interface" -> {
                 rows.add(toggle("monitor", "hud", () -> cfg.showHud, v -> cfg.showHud = v));
