@@ -1,5 +1,6 @@
 package ru.winlaunch.visuals;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
@@ -9,6 +10,9 @@ public final class Zoom {
     private static float current = 1f;
     private static long lastNanos = 0L;
 
+    /** The standalone Win Zoom mod, bundled in some packs, also owns Z; then it does the zooming and we stay out of the way. */
+    private static final boolean STANDALONE = FabricLoader.getInstance().isModLoaded("winzoom");
+
     private Zoom() { }
 
     public static void bind(KeyMapping mapping) {
@@ -17,6 +21,7 @@ public final class Zoom {
 
     /** Smoothed zoom factor, 1.0 when not zooming. Safe to call several times per frame. */
     public static float factor() {
+        if (STANDALONE) return 1f;
         VisualsConfig cfg = VisualsConfig.get();
         Minecraft mc = Minecraft.getInstance();
         boolean held = key != null && key.isDown() && cfg.enabled && cfg.zoomEnabled
