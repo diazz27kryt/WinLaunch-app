@@ -138,6 +138,7 @@ object WinLaunchPvPPack {
             zip.closeEntry()
             WinVisualsBundle.addTo(zip, context, gameVersion)
             WinZoomBundle.addTo(zip, context, gameVersion)
+            WinLaunchResourcesBundle.addTo(zip, context)
         }
         packFile
     }

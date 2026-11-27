@@ -312,7 +312,7 @@ def glow():
         f.write('{"texture": {"blur": true, "clamp": true}}\n')
 
 
-def logo():
+def logo(final=256, write=True):
     size = 4 * 256
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     # metallic "W"
@@ -361,7 +361,9 @@ def logo():
     ra = ImageChops.multiply(ring_layer.getchannel("A"), fade)
     ring_layer.putalpha(ra)
     img = Image.alpha_composite(img, ring_layer)
-    img = img.resize((256, 256), Image.LANCZOS)
+    img = img.resize((final, final), Image.LANCZOS)
+    if not write:
+        return img
     path = os.path.join(OUT, "logo.png")
     img.save(path)
     with open(path + ".mcmeta", "w") as f:

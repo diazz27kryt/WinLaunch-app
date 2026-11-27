@@ -5,7 +5,10 @@
   "name": "Win Visuals game test",
   "environment": "client",
   "entrypoints": {
-    "fabric-client-gametest": ["ru.winlaunch.visuals.gametest.WinVisualsClientTest"]
+    "fabric-client-gametest": [
+      "ru.winlaunch.visuals.gametest.WinLaunchPackClientTest",
+      "ru.winlaunch.visuals.gametest.WinVisualsClientTest"
+    ]
   },
   "depends": {
     "winvisuals": "*"

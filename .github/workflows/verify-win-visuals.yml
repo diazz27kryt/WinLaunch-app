@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - 'win-visuals/**'
+      - 'winlaunch-pack/**'
+      - 'ZalithLauncher/src/main/assets/winlaunch/**'
       - '.github/workflows/verify-win-visuals.yml'
   workflow_dispatch:
 
@@ -34,6 +36,7 @@ jobs:
           MESA_GL_VERSION_OVERRIDE: '4.5'
           MESA_GLSL_VERSION_OVERRIDE: '450'
           LP_NUM_THREADS: '3'
+          WL_PACK_ZIP: ${{ github.workspace }}/ZalithLauncher/src/main/assets/winlaunch/WinLaunch.zip
           JAVA_TOOL_OPTIONS: '-Xmx3g -Xms1g'
         run: |
           for attempt in 1 2; do
