@@ -153,6 +153,11 @@ public final class CosmeticsLayer extends RenderLayer<AvatarRenderState, PlayerM
                 vertex(pose, out, inner, bottom, 0f, 0f, 1f, color);
                 vertex(pose, out, outer, bottom, 0f, 1f, 1f, color);
                 vertex(pose, out, outer, top, 0f, 1f, 0f, color);
+                // Back face too: the mirrored wing would otherwise be culled and only one wing would show.
+                vertex(pose, out, inner, top, 0f, 0f, 0f, color);
+                vertex(pose, out, outer, top, 0f, 1f, 0f, color);
+                vertex(pose, out, outer, bottom, 0f, 1f, 1f, color);
+                vertex(pose, out, inner, bottom, 0f, 0f, 1f, color);
             });
             poseStack.popPose();
         }
