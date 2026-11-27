@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Builds the WinLaunch resource pack (night-aurora title-screen panorama + WinLaunch logo).
+"""Builds the WinLaunch resource pack (castle title-screen panorama + WinLaunch logo).
 
-    python3 winlaunch-pack/gen_resourcepack.py
+    python3 winlaunch-pack/gen_resourcepack.py            # castle panorama built around the launcher's home banner
+    python3 winlaunch-pack/gen_resourcepack.py --aurora   # alternative: procedural night-aurora panorama
 
 Output: ZalithLauncher/src/main/assets/winlaunch/WinLaunch.zip (bundled into the PvP and Optimization packs,
 see WinLaunchResourcesBundle.kt). Everything is procedural, so the pack is reproducible and has no third-party art.
@@ -213,6 +214,142 @@ def build_panorama():
     return faces
 
 
+
+# ----------------------------------------------------------------------------------------------- castle panorama
+CASTLE = os.path.join(ROOT, "ZalithLauncher", "src", "main", "res", "drawable-nodpi", "img_home_banner.webp")
+CASTLE_HFOV = math.radians(126.0)   # horizontal field of view the picture covers
+CASTLE_HORIZON = 0.655              # row (fraction of the height) where the far shore meets the water
+
+
+class Castle:
+    def __init__(self):
+        im = Image.open(CASTLE).convert("L")
+        self.w, self.h = im.size
+        self.img = np.asarray(im, np.float32) / 255.0
+        self.blur = np.asarray(im.filter(ImageFilter.GaussianBlur(34)), np.float32) / 255.0
+        self.blur2 = np.asarray(im.filter(ImageFilter.GaussianBlur(90)), np.float32) / 255.0
+        self.f = (self.w / 2) / math.tan(CASTLE_HFOV / 2)
+        rows = self.img.mean(axis=1)
+        k = np.ones(41, np.float32) / 41
+        padded = np.pad(rows, 20, mode="edge")
+        self.rows = np.convolve(padded, k, mode="valid")
+
+
+def bilinear(img, x, y):
+    h, w = img.shape
+    x = np.clip(x, 0, w - 1.001)
+    y = np.clip(y, 0, h - 1.001)
+    x0 = x.astype(np.int32)
+    y0 = y.astype(np.int32)
+    fx = x - x0
+    fy = y - y0
+    a = img[y0, x0] * (1 - fx) + img[y0, x0 + 1] * fx
+    b = img[y0 + 1, x0] * (1 - fx) + img[y0 + 1, x0 + 1] * fx
+    return a * (1 - fy) + b * fy
+
+
+def noise2(x, y, seed):
+    xi = np.floor(x).astype(np.int64)
+    yi = np.floor(y).astype(np.int64)
+    fx = x - xi
+    fy = y - yi
+    fx = fx * fx * (3 - 2 * fx)
+    fy = fy * fy * (3 - 2 * fy)
+    a = rnd(xi, yi, seed)
+    b = rnd(xi + 1, yi, seed)
+    c = rnd(xi, yi + 1, seed)
+    d = rnd(xi + 1, yi + 1, seed)
+    return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy
+
+
+def fbm2(x, y, seed, octaves=5):
+    tot = np.zeros_like(x, dtype=np.float32)
+    amp = 0.5
+    norm = 0.0
+    for o in range(octaves):
+        tot += amp * noise2(x, y, seed + o * 17)
+        norm += amp
+        x = x * 2.03 + 11.7
+        y = y * 2.03 + 5.3
+        amp *= 0.5
+    return tot / norm
+
+
+def castle_far_sky(C, d):
+    """Misty night sky matching the picture's tonal profile; used wherever the picture does not reach."""
+    y = np.clip(d[..., 1], -1, 1)
+    x, z = d[..., 0], d[..., 2]
+    el = np.arcsin(y)
+    row = np.clip(C.h * CASTLE_HORIZON - C.f * np.tan(np.minimum(el, 1.45)), 0, C.h - 1)
+    tone = np.interp(row, np.arange(C.h), C.rows).astype(np.float32)
+    tone = np.minimum(tone, 0.62)
+    # cloud deck projected on a plane overhead; stretched toward the horizon like real clouds
+    k = 1.0 / (np.abs(y) + 0.28)
+    c = fbm2(x * k * 1.7 + 3.1, z * k * 1.7 - 2.4, 5)
+    c2 = fbm2(x * k * 5.0 + 9.0, z * k * 5.0 + 1.0, 41, 4)
+    cloud = np.clip(c * 1.9 - 0.55 + 0.35 * (c2 - 0.5), 0, 1)
+    sky = tone * (0.22 + 1.7 * cloud * cloud) + 0.03
+    mist = np.exp(-np.abs(el) / 0.07) * 0.26
+    sky = sky + mist
+    # blocky far hills and towers on the horizon
+    az = np.arctan2(x, -z)
+    col = np.floor(az / 0.030).astype(np.int64)
+    hill = 0.020 + 0.050 * (0.5 + 0.5 * np.sin(2 * az + 0.4)) + 0.045 * np.clip(np.sin(3 * az + 2.0), 0, 1) ** 2
+    tower = (rnd(col, col * 0, 7) < 0.16) * (0.012 + 0.030 * rnd(col, col * 0, 9))
+    top = np.ceil((hill + tower) / 0.009) * 0.009
+    land = (el < top) & (el > -0.004)
+    land_tone = 0.07 + 0.10 * np.exp(-np.clip(el, 0, None) / 0.03) + 0.05 * rnd(col, col * 0, 13)
+    sky = np.where(land, land_tone + mist * 0.6, sky)
+    return np.clip(sky, 0, 1)
+
+
+def castle_scene(C, d):
+    x, y, z = d[..., 0], d[..., 1], d[..., 2]
+    fwd = -z
+    ok = fwd > 0.05
+    safe = np.where(ok, fwd, 1.0)
+    px = C.w / 2 + C.f * (x / safe)
+    py = C.h * CASTLE_HORIZON - C.f * (y / safe)
+    dxo = np.maximum(0, np.abs(px - C.w / 2) - C.w / 2)
+    dyo = np.maximum(0, np.maximum(-py, py - C.h))
+    dpx = np.hypot(dxo, dyo)
+    sharp = bilinear(C.img, px, py)
+    soft = bilinear(C.blur, px, py)
+    soft2 = bilinear(C.blur2, px, py)
+    soft = soft * (1 - smoothstep(0, 70, dpx)) + soft2 * smoothstep(0, 70, dpx)
+    inside = np.minimum(np.minimum(px, C.w - px), np.minimum(py, C.h - py))
+    a = smoothstep(0, 44, inside)          # the sharp picture fades into its own blurred copy at the borders
+    pic = soft * (1 - a) + sharp * a
+    wbg = np.where(ok, smoothstep(0, 0.45 * C.f, dpx), 1.0)
+
+    # procedural world: sky above the horizon, dark mirrored water below it
+    above = castle_far_sky(C, d)
+    mirror = d.copy()
+    mirror[..., 1] = np.abs(mirror[..., 1])
+    az = np.arctan2(x, -z)
+    depth = np.clip(-y, 0, 1)
+    ripple = 0.004 * np.sin(260 * np.arcsin(depth) + 7 * az) * np.clip(depth * 6, 0, 1)
+    mirror[..., 1] = np.clip(mirror[..., 1] + ripple, 0, 1)
+    mirror /= np.linalg.norm(mirror, axis=-1, keepdims=True)
+    refl = castle_far_sky(C, mirror) * (0.62 - 0.30 * depth) + 0.012
+    w = smoothstep(0.0, -0.0006, y)
+    bg = above * (1 - w) + refl * w
+
+    g = pic * (1 - wbg) + bg * wbg
+    g = np.clip(g, 0, 1)
+    return (g[..., None] * np.array([1.0, 1.0, 1.0], np.float32))
+
+
+def build_castle_panorama():
+    C = Castle()
+    faces = []
+    for i in range(6):
+        g = np.clip(castle_scene(C, face_dirs(i, FACE)), 0, 1)
+        faces.append(Image.fromarray((g * 255 + 0.5).astype(np.uint8), "RGB"))
+        print("castle face", i, flush=True)
+    return faces
+
+
 # ----------------------------------------------------------------------------------------------- logo / icon
 def load_gen_assets():
     path = os.path.join(ROOT, "win-visuals", "tools", "gen_assets.py")
@@ -313,7 +450,8 @@ def png_bytes(img):
 def main():
     ga = load_gen_assets()
     emblem = ga.logo(final=512, write=False)
-    faces = build_panorama()
+    style = "aurora" if "--aurora" in sys.argv else "castle"
+    faces = build_panorama() if style == "aurora" else build_castle_panorama()
     mcmeta = {
         "pack": {
             "pack_format": 34,
