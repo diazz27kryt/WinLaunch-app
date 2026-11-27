@@ -45,7 +45,7 @@ public class WinVisualsScreen extends Screen {
     private static final String[] TABS = {"sky", "visuals", "particles", "interface", "settings"};
     private static final String[] TAB_ICONS = {"moon", "sparkle", "particles", "monitor", "gear"};
     private static final int[] PRESETS = {
-        0xFFFFFF, 0xE8E8EC, 0xC8C8CE, 0xA8A8B0, 0x888890, 0x686870, 0x484850, 0x282830
+        0xFFFFFF, 0xC8C8CE, 0xFF8FB8, 0xFF5C8A, 0xB48CFF, 0x6FB8FF, 0x5CF2C0, 0xFFD86B
     };
     private static final int[] AURORA = {0x2CFF9A, 0x27D8F0, 0x8C6CFF};
 

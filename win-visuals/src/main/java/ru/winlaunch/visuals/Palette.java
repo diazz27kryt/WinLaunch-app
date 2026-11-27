@@ -1,8 +1,5 @@
 package ru.winlaunch.visuals;
 
-import net.minecraft.core.particles.DustParticleOptions;
-import org.joml.Vector3f;
-
 import java.awt.Color;
 
 /** Picks the particle colour according to the config. */
@@ -27,11 +24,5 @@ public final class Palette {
             default:
                 return Color.HSBtoRGB(t % 1.0f, 0.75f, 1.0f) & 0xFFFFFF;
         }
-    }
-
-    public static DustParticleOptions dust(long gameTime, float offset) {
-        int c = rgb(gameTime, offset);
-        Vector3f v = new Vector3f(((c >> 16) & 0xFF) / 255f, ((c >> 8) & 0xFF) / 255f, (c & 0xFF) / 255f);
-        return new DustParticleOptions(c, VisualsConfig.get().particleSize);
     }
 }

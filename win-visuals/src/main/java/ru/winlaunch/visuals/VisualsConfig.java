@@ -38,7 +38,7 @@ public class VisualsConfig {
 
     public ColorMode colorMode = ColorMode.SOLID;
     /** Used by SOLID and PULSE modes, hex RRGGBB. */
-    public String color = "F2F2F5";
+    public String color = "FF8FB8";
     /** Rainbow / pulse speed. */
     public float colorSpeed = 1.0f;
     public float particleSize = 1.0f;

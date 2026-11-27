@@ -103,6 +103,19 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             cfg.skyStars = false;
             context.waitTicks(5);
             shot(context, "wv_sky_effects_off");
+
+            // Own particles: spawn every effect on the player and screenshot it from behind.
+            cfg.color = "FF8FB8";
+            world.getServer().runCommand("tp @p ~ ~ ~ 20 20");
+            context.runOnClient(client -> client.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+            context.waitTicks(10);
+            context.runOnClient(client -> {
+                ru.winlaunch.visuals.Effects.landing(client.level, client.player);
+                ru.winlaunch.visuals.Effects.hit(client.level, client.player);
+                ru.winlaunch.visuals.Effects.trail(client.level, client.player, 1.5, 0.0);
+            });
+            context.waitTicks(4);
+            shot(context, "wv_particles");
             System.out.println("WVTEST done");
         }
     }
