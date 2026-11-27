@@ -1,7 +1,7 @@
 /*
  * WinLaunch PvP Pack builder.
- * A fair-play client pack: performance, recording and everyday QoL only.
- * No combat automation, reach changes, x-ray, packet manipulation or PvP helper HUDs.
+ * Fair-play client pack with performance, recording, optional PvP HUD and display customization.
+ * No combat automation, reach changes, x-ray or packet manipulation.
  */
 package com.movtery.zalithlauncher.game.download.modpack.optimization
 
@@ -12,9 +12,9 @@ import com.google.gson.JsonObject
 import com.movtery.zalithlauncher.game.addons.modloader.fabriclike.fabric.FabricVersions
 import com.movtery.zalithlauncher.game.download.addon.platform.PlatformDependencyType
 import com.movtery.zalithlauncher.game.download.addon.platform.PlatformReleaseType
-import com.movtery.zalithlauncher.game.download.addon.platform.modrinth.MODRINTH_API
-import com.movtery.zalithlauncher.game.download.addon.platform.modrinth.models.ModrinthVersion
-import com.movtery.zalithlauncher.utils.network.httpGetJson
+import com.movtery.zalith.zalithlauncher.game.download.addon.platform.modrinth.MODRINTH_API
+import com.movtery.zalith.zalithlauncher.game.download.addon.platform.modrinth.models.ModrinthVersion
+import com.movtery.zalith.zalithlauncher.utils.network.httpGetJson
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.Parameters
 import kotlinx.coroutines.Dispatchers
@@ -30,8 +30,6 @@ object WinLaunchPvPPack {
 
     private data class Project(val slug: String, val required: Boolean = false)
 
-    // Performance + general QoL/recording only. Deliberately excludes combat helpers,
-    // inventory/armor advantage HUDs, auto-clickers, macros and reach modifications.
     private val projects = listOf(
         Project("sodium", required = true),
         Project("lithium"),
@@ -45,8 +43,13 @@ object WinLaunchPvPPack {
         Project("appleskin"),
         Project("mouse-tweaks"),
         Project("replaymod"),
-        // Required by the bundled Win Visuals mod.
-        Project("fabric-api")
+        // Existing bundled WinLaunch mods and their Modrinth dependencies.
+        Project("fabric-api"),
+        // PvP additions: screen aspect-ratio controls and target hitbox visualization.
+        // These are optional so older game versions keep building if no release exists.
+        Project("drypted-pvp-essentials"),
+        Project("combat-hitboxes"),
+        Project("rescale")
     )
 
     private val gson = GsonBuilder().disableHtmlEscaping().create()
@@ -63,7 +66,12 @@ object WinLaunchPvPPack {
 
         val selected = linkedMapOf<String, ModrinthVersion>()
         for (project in projects) {
-            val version = findCompatibleVersion(project.slug, gameVersion)
+            val version = try {
+                findCompatibleVersion(project.slug, gameVersion)
+            } catch (e: ClientRequestException) {
+                if (project.required || e.response.status.value != 404) throw e
+                null
+            }
             if (version == null) {
                 if (project.required) {
                     throw IllegalStateException(
@@ -113,7 +121,7 @@ object WinLaunchPvPPack {
             addProperty("name", "WinLaunch PvP Pack $gameVersion")
             addProperty(
                 "summary",
-                "Fair-play Fabric pack: performance, visual settings, inventory QoL and replay recording. No combat automation or PvP helper HUDs."
+                "Fabric PvP pack with performance, Rescale aspect-ratio controls, PvP Essentials and Combat Hitboxes where compatible. No combat automation, reach changes, x-ray or packet manipulation."
             )
             add("files", files)
             add("dependencies", JsonObject().apply {
