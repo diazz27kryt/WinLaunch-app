@@ -519,6 +519,7 @@ public class WinVisualsScreen extends Screen {
                 rows.add(toggle("sparkle", "wings", () -> cfg.cosmeticWings, v -> cfg.cosmeticWings = v));
             }
             case "interface" -> {
+                rows.add(toggle("sparkle", "island", () -> cfg.showIsland, v -> cfg.showIsland = v));
                 rows.add(toggle("monitor", "hud", () -> cfg.showHud, v -> cfg.showHud = v));
                 rows.add(toggle("sparkle", "animations", () -> cfg.uiAnimations, v -> cfg.uiAnimations = v));
                 rows.add(toggle("grid", "compact", () -> cfg.compactUi, v -> cfg.compactUi = v));
