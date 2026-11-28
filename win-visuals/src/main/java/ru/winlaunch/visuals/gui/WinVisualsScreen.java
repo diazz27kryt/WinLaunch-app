@@ -9,8 +9,10 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import ru.winlaunch.visuals.KillEffects;
 import ru.winlaunch.visuals.VisualsConfig;
 import ru.winlaunch.visuals.VisualsConfig.ColorMode;
+import ru.winlaunch.visuals.VisualsConfig.KillMode;
 import ru.winlaunch.visuals.WinVisuals;
 
 import java.util.ArrayList;
@@ -42,8 +44,8 @@ public class WinVisualsScreen extends Screen {
     private static final int TEXT = 0xFFF5F5F7;
     private static final int TEXT_DIM = 0xFF8E8E96;
 
-    private static final String[] TABS = {"sky", "visuals", "particles", "cosmetics", "interface", "settings"};
-    private static final String[] TAB_ICONS = {"moon", "sparkle", "particles", "star", "monitor", "gear"};
+    private static final String[] TABS = {"sky", "visuals", "combat", "particles", "cosmetics", "interface", "settings"};
+    private static final String[] TAB_ICONS = {"moon", "sparkle", "burst", "particles", "star", "monitor", "gear"};
     private static final int[] PRESETS = {
         0xFFFFFF, 0xC8C8CE, 0xFF8FB8, 0xFF5C8A, 0xB48CFF, 0x6FB8FF, 0x5CF2C0, 0xFFD86B
     };
@@ -185,12 +187,12 @@ public class WinVisualsScreen extends Screen {
         for (int i = 0; i < TABS.length; i++) {
             int ty = navY(i);
             boolean sel = i == tab;
-            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 17);
-            panel(g, FILL, sx + 6, ty, sw - 12, 17, 6,
+            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 15);
+            panel(g, FILL, sx + 6, ty, sw - 12, 15, 6,
                 a(sel ? 0x38FFFFFF : (hov ? 0x1CFFFFFF : 0x66000000), ease));
-            panel(g, STROKE, sx + 6, ty, sw - 12, 17, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
-            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 3, 11, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
-            text(g, t("tab." + TABS[i]), sx + 30, ty + 5, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
+            panel(g, STROKE, sx + 6, ty, sw - 12, 15, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
+            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 2, 11, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
+            text(g, t("tab." + TABS[i]), sx + 30, ty + 4, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
         }
 
         // footer card
@@ -203,7 +205,7 @@ public class WinVisualsScreen extends Screen {
     }
 
     private int navY(int i) {
-        return py + 84 + i * 18;
+        return py + 82 + i * 16;
     }
 
     private void renderHeader(GuiGraphics g, double mx, double my, float ease) {
@@ -375,7 +377,7 @@ public class WinVisualsScreen extends Screen {
         if (collapsed) return true;
 
         for (int i = 0; i < TABS.length; i++) {
-            if (inside(mx, my, px + 10, navY(i), SW - 16, 17)) {
+            if (inside(mx, my, px + 10, navY(i), SW - 16, 15)) {
                 selectTab(i);
                 return true;
             }
@@ -440,6 +442,17 @@ public class WinVisualsScreen extends Screen {
         super.onClose();
     }
 
+    /** Closes the menu and plays the selected kill effect a few blocks in front of the player. */
+    private void previewKill() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.player != null && mc.level != null) {
+            net.minecraft.world.phys.Vec3 look = mc.player.getLookAngle();
+            KillEffects.start(mc.level, mc.player.getX() + look.x * 4.0, mc.player.getY(), mc.player.getZ() + look.z * 4.0,
+                1.8, cfg.killMode);
+        }
+        onClose();
+    }
+
     private void resetAll() {
         cfg.resetToDefaults();
         cfg.save();
@@ -475,6 +488,19 @@ public class WinVisualsScreen extends Screen {
                 rows.add(toggle("burst", "hits", () -> cfg.hitEffects, v -> cfg.hitEffects = v));
                 rows.add(toggle("arrow_up", "jump", () -> cfg.jumpEffects, v -> cfg.jumpEffects = v));
                 rows.add(toggle("ring", "landing", () -> cfg.landingEffects, v -> cfg.landingEffects = v));
+            }
+            case "combat" -> {
+                rows.add(toggle("users", "targetesp", () -> cfg.targetEsp, v -> cfg.targetEsp = v));
+                rows.add(toggle("monitor", "targethud", () -> cfg.targetHud, v -> cfg.targetHud = v));
+                rows.add(toggle("burst", "killeffect", () -> cfg.killEffects, v -> cfg.killEffects = v));
+                rows.add(action("sparkle", "killmode", t("kill." + cfg.killMode.name().toLowerCase()), () -> {
+                    KillMode[] all = KillMode.values();
+                    cfg.killMode = all[(cfg.killMode.ordinal() + 1) % all.length];
+                    cfg.save();
+                    buildTab();
+                }));
+                rows.add(toggle("bolt", "killsound", () -> cfg.killSound, v -> cfg.killSound = v));
+                rows.add(action("check", "killtest", t("do.test"), this::previewKill));
             }
             case "particles" -> {
                 rows.add(modes());

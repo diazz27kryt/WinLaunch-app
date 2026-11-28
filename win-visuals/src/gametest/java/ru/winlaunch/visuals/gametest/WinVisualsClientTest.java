@@ -90,7 +90,7 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             }
             context.waitTicks(30);
             shot(context, "wv_gui_0");
-            for (int tab = 1; tab < 6; tab++) {
+            for (int tab = 1; tab < 7; tab++) {
                 final int t = tab;
                 context.runOnClient(client -> ((WinVisualsScreen) client.screen).selectTab(t));
                 context.waitTicks(10);
