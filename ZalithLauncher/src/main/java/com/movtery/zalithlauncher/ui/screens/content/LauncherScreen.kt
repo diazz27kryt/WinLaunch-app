@@ -27,6 +27,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -144,15 +148,15 @@ fun LauncherScreen(
 }
 
 /**
- * Главная панель WinLaunch — отдельная компоновка с центральной зоной запуска,
- * быстрым доступом к библиотеке и краткой информацией о конфигурации.
+ * Главный экран по макету: логотип и стеклянная карточка запуска слева,
+ * справа остаётся виден фон. Навигация живёт в левой панели.
  */
 @Composable
 private fun WinLaunchDashboard(
     modifier: Modifier = Modifier,
-    backStackViewModel: ScreenBackStackViewModel,
-    onOpenDownload: (TitledNavKey) -> Unit,
-    onOpenAccount: () -> Unit,
+    @Suppress("UNUSED_PARAMETER") backStackViewModel: ScreenBackStackViewModel,
+    @Suppress("UNUSED_PARAMETER") onOpenDownload: (TitledNavKey) -> Unit,
+    @Suppress("UNUSED_PARAMETER") onOpenAccount: () -> Unit,
     onOpenVersions: () -> Unit,
     onOpenVersionSettings: () -> Unit,
     onLaunchGame: (Version?) -> Unit,
@@ -160,437 +164,225 @@ private fun WinLaunchDashboard(
     val isRefreshing by VersionsManager.isRefreshing.collectAsStateWithLifecycle()
     val currentVersion by VersionsManager.currentVersion.collectAsStateWithLifecycle()
     val versions by VersionsManager.versions.collectAsStateWithLifecycle()
-    val account by AccountsManager.currentAccountFlow.collectAsStateWithLifecycle()
-    val selectedVersion = currentVersion
-    val isReady = !isRefreshing && selectedVersion != null && selectedVersion.isValid()
-    val ramMb = GameSettings.ramAllocation.state
-    val ramText = when {
-        ramMb == null -> "—"
-        ramMb % 1024 == 0 -> "${ramMb / 1024} GB"
-        else -> "${ramMb} MB"
-    }
+    val cardShape = RoundedCornerShape(30.dp)
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        Row(
+    Row(modifier = modifier) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(38.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+                .weight(0.58f)
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(9.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(RoundedCornerShape(9.dp))
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFFF4F5F7), Color(0xFF9299A5))
-                            )
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "W",
-                        color = Color(0xFF111318),
-                        fontWeight = FontWeight.Black,
-                        fontSize = 19.sp
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                    Text(
-                        text = "WINLAUNCH",
-                        color = MaterialTheme.colorScheme.onBackground,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp,
-                        letterSpacing = 2.sp
-                    )
-                    Text(
-                        text = "GAME CONTROL CENTER",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 8.sp,
-                        letterSpacing = 1.6.sp
-                    )
-                }
-            }
-            Row(
+            Image(
+                painter = painterResource(R.drawable.winlaunch_logo),
+                contentDescription = "WinLaunch",
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Color.White.copy(alpha = 0.045f))
-                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(50))
-                    .padding(horizontal = 11.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
-            ) {
-                Box(
-                    Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(if (isReady) Color(0xFF75E0AE) else Color(0xFFFFC46B))
-                )
-                Text(
-                    text = if (isRefreshing) stringResource(R.string.home_status_refreshing)
-                    else if (isReady) stringResource(R.string.home_status_ready)
-                    else stringResource(R.string.home_status_invalid),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
+                    .fillMaxWidth(0.96f)
+                    .weight(0.27f),
+                contentScale = ContentScale.Fit
+            )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Основная зона запуска
-            Box(
+            Column(
                 modifier = Modifier
-                    .weight(1.55f)
-                    .fillMaxHeight()
-                    .clip(RoundedCornerShape(26.dp))
+                    .fillMaxWidth(0.92f)
+                    .weight(0.73f)
+                    .clip(cardShape)
                     .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF20252E),
-                                Color(0xFF12161D),
-                                Color(0xFF0B0D12)
-                            )
+                        Brush.verticalGradient(
+                            listOf(Color(0xFF16181C).copy(alpha = 0.80f), Color(0xFF050506).copy(alpha = 0.90f))
                         )
                     )
-                    .border(1.dp, Color.White.copy(alpha = 0.13f), RoundedCornerShape(26.dp))
+                    .border(
+                        1.dp,
+                        Brush.verticalGradient(
+                            listOf(Color.White.copy(alpha = 0.50f), Color.White.copy(alpha = 0.10f), Color.White.copy(alpha = 0.30f))
+                        ),
+                        cardShape
+                    )
                     .guideNode(
                         key = GuideKeys.Main.Step.CardDrag,
-                        holeShape = RoundedCornerShape(26.dp)
+                        holeShape = cardShape
                     )
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .size(250.dp)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    Color(0xFFBFCBDE).copy(alpha = 0.16f),
-                                    Color(0xFF6D88B0).copy(alpha = 0.035f),
-                                    Color.Transparent
-                                )
-                            ),
-                            CircleShape
-                        )
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 24.dp)
-                        .size(178.dp)
-                        .border(1.dp, Color.White.copy(alpha = 0.12f), CircleShape)
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 48.dp)
-                        .size(130.dp)
-                        .border(1.dp, Color.White.copy(alpha = 0.10f), CircleShape)
-                )
                 Text(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 78.dp),
-                    text = "W",
-                    color = Color.White.copy(alpha = 0.075f),
-                    fontSize = 120.sp,
-                    lineHeight = 120.sp,
-                    fontWeight = FontWeight.Black
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                            append("WinLaunch")
+                        }
+                        withStyle(SpanStyle(color = Color(0xFFD5D9E0))) {
+                            append(" - твой Minecraft\nлаунчер на Android")
+                        }
+                    },
+                    textAlign = TextAlign.Center,
+                    fontSize = 13.sp,
+                    lineHeight = 17.sp
                 )
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(18.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "YOUR WORLD STARTS HERE",
-                            color = Color(0xFFAAB4C4),
-                            fontSize = 9.sp,
-                            letterSpacing = 2.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = "MINECRAFT",
-                            color = Color(0xFFF5F6F8),
-                            fontSize = 30.sp,
-                            lineHeight = 34.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.2.sp
-                        )
-                        Text(
-                            text = "Java Edition  /  персональная игровая среда",
-                            color = Color(0xFF9CA6B5),
-                            fontSize = 10.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        var showVersions by remember { mutableStateOf(false) }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "ВЕРСИЯ",
-                                color = Color(0xFF8F9AAA),
-                                fontSize = 8.sp,
-                                letterSpacing = 1.3.sp
-                            )
-                            Box {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(13.dp))
-                                        .background(Color.White.copy(alpha = 0.075f))
-                                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(13.dp))
-                                        .clickable {
-                                            if (versions.isEmpty()) onOpenVersions() else showVersions = true
-                                        }
-                                        .padding(horizontal = 10.dp, vertical = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(7.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_box),
-                                        contentDescription = null,
-                                        tint = Color(0xFFE2E7EF),
-                                        modifier = Modifier.size(17.dp)
-                                    )
-                                    Text(
-                                        modifier = Modifier.weight(1f),
-                                        text = currentVersion?.getVersionName()
-                                            ?: stringResource(R.string.versions_manage_install_new),
-                                        color = Color.White,
-                                        fontSize = 11.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_keyboard_arrow_down),
-                                        contentDescription = null,
-                                        tint = Color(0xFF9CA6B5),
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                                DropdownMenu(
-                                    expanded = showVersions && versions.isNotEmpty(),
-                                    onDismissRequest = { showVersions = false }
-                                ) {
-                                    versions.forEach { item ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                CommonVersionInfoLayout(
-                                                    version = item,
-                                                    iconSize = 26.dp
-                                                )
-                                            },
-                                            onClick = {
-                                                if (item != currentVersion) VersionsManager.saveVersion(item)
-                                                showVersions = false
-                                            }
-                                        )
-                                    }
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.home_manage_versions)) },
-                                        onClick = {
-                                            showVersions = false
-                                            onOpenVersions()
-                                        }
-                                    )
-                                }
-                            }
-                        }
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "АККАУНТ",
-                                color = Color(0xFF8F9AAA),
-                                fontSize = 8.sp,
-                                letterSpacing = 1.3.sp
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(13.dp))
-                                    .background(Color.White.copy(alpha = 0.075f))
-                                    .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(13.dp))
-                                    .clickable(onClick = onOpenAccount)
-                                    .padding(horizontal = 10.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(7.dp)
-                            ) {
-                                if (account != null) {
-                                    PlayerFace(account = account!!, avatarSize = 22.dp)
-                                } else {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_person_outlined),
-                                        contentDescription = null,
-                                        tint = Color(0xFFE2E7EF),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = account?.username ?: stringResource(R.string.account_add_new_account),
-                                    color = Color.White,
-                                    fontSize = 11.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                        }
-                    }
-
+                // Выбор версии
+                var showVersions by remember { mutableStateOf(false) }
+                val glass = RoundedCornerShape(20.dp)
+                Box(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp)
-                            .clip(RoundedCornerShape(15.dp))
-                            .background(
-                                Brush.horizontalGradient(
-                                    listOf(Color(0xFFF0F2F5), Color(0xFFC1C8D2))
-                                )
+                            .clip(glass)
+                            .background(Color.White.copy(alpha = 0.05f))
+                            .border(1.dp, Color.White.copy(alpha = 0.28f), glass)
+                            .guideNode(
+                                key = GuideKeys.Main.Step.VersionList,
+                                holeShape = glass
                             )
-                            .clickable(enabled = !isRefreshing) {
-                                if (currentVersion == null) onOpenVersions() else onLaunchGame(null)
+                            .clickable {
+                                if (versions.isEmpty()) onOpenVersions() else showVersions = true
                             }
-                            .padding(horizontal = 18.dp),
+                            .padding(horizontal = 10.dp, vertical = 7.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_play_arrow_filled),
-                            contentDescription = null,
-                            tint = Color(0xFF11151B),
-                            modifier = Modifier.size(23.dp)
+                        VersionIconImage(
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                            version = currentVersion,
                         )
-                        Text(
-                            modifier = Modifier.padding(start = 8.dp),
-                            text = stringResource(R.string.home_play).uppercase(),
-                            color = Color(0xFF11151B),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.2.sp
-                        )
-                    }
-                }
-            }
-
-            // Правая колонка: библиотека и системная сводка
-            Column(
-                modifier = Modifier
-                    .weight(0.88f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(23.dp))
-                        .background(Color(0xFF151920))
-                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(23.dp))
-                        .padding(13.dp),
-                    verticalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    Text(
-                        text = "БИБЛИОТЕКА",
-                        color = Color(0xFFE9EDF3),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp
-                    )
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(7.dp)
-                    ) {
-                        DashboardShortcut(
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            icon = R.drawable.ic_star_filled,
-                            label = stringResource(R.string.download_category_favorites),
-                            onClick = { onOpenDownload(backStackViewModel.downloadFavoritesScreen) }
-                        )
-                        DashboardShortcut(
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            icon = R.drawable.ic_extension_outlined,
-                            label = stringResource(R.string.home_quick_modpacks),
-                            onClick = { onOpenDownload(backStackViewModel.downloadModPackScreen) }
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(7.dp)
-                    ) {
-                        DashboardShortcut(
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            icon = R.drawable.ic_format_paint_outlined,
-                            label = stringResource(R.string.home_quick_resource_packs),
-                            onClick = { onOpenDownload(backStackViewModel.downloadResourcePackScreen) }
-                        )
-                        DashboardShortcut(
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
-                            icon = R.drawable.ic_blur_circular_outlined,
-                            label = stringResource(R.string.home_quick_shaders),
-                            onClick = { onOpenDownload(backStackViewModel.downloadShadersScreen) }
-                        )
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .weight(0.8f)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(23.dp))
-                        .background(
-                            Brush.linearGradient(
-                                listOf(Color(0xFF202630), Color(0xFF151A22))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Версия Minecraft",
+                                color = Color(0xFFB4BAC4),
+                                fontSize = 9.sp,
+                                lineHeight = 11.sp,
+                                maxLines = 1
                             )
+                            Text(
+                                text = currentVersion?.getVersionName()
+                                    ?: stringResource(R.string.versions_manage_install_new),
+                                color = Color.White,
+                                fontSize = 15.sp,
+                                lineHeight = 18.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(R.drawable.ic_keyboard_arrow_down),
+                            contentDescription = null,
+                            tint = Color(0xFFD5D9E0),
+                            modifier = Modifier.size(22.dp)
                         )
-                        .border(1.dp, Color.White.copy(alpha = 0.10f), RoundedCornerShape(23.dp))
-                        .padding(13.dp),
-                    verticalArrangement = Arrangement.spacedBy(7.dp)
-                ) {
-                    Text(
-                        text = "СИСТЕМА",
-                        color = Color(0xFFE9EDF3),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.5.sp
-                    )
-                    DashboardMetric(
-                        name = "Выделено памяти",
-                        value = ramText
-                    )
-                    DashboardMetric(
-                        name = "Установлено версий",
-                        value = versions.size.toString()
-                    )
-                    DashboardMetric(
-                        name = "Текущий профиль",
-                        value = currentVersion?.getVersionName() ?: "Не выбран"
-                    )
+                    }
+                    DropdownMenu(
+                        expanded = showVersions && versions.isNotEmpty(),
+                        onDismissRequest = { showVersions = false }
+                    ) {
+                        versions.forEach { item ->
+                            DropdownMenuItem(
+                                text = {
+                                    CommonVersionInfoLayout(
+                                        version = item,
+                                        iconSize = 26.dp
+                                    )
+                                },
+                                onClick = {
+                                    if (item != currentVersion) VersionsManager.saveVersion(item)
+                                    showVersions = false
+                                }
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.home_manage_versions)) },
+                            onClick = {
+                                showVersions = false
+                                onOpenVersions()
+                            }
+                        )
+                    }
                 }
+
+                MockupButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+                    icon = R.drawable.ic_settings_filled,
+                    label = "Настройка версий",
+                    textSize = 14.sp,
+                    iconSize = 18.dp,
+                    onClick = {
+                        if (currentVersion == null) onOpenVersions() else onOpenVersionSettings()
+                    }
+                )
+
+                MockupButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    icon = R.drawable.ic_play_arrow_filled,
+                    label = stringResource(R.string.home_play),
+                    textSize = 19.sp,
+                    iconSize = 28.dp,
+                    bold = true,
+                    enabled = !isRefreshing,
+                    onClick = {
+                        if (currentVersion == null) onOpenVersions() else onLaunchGame(null)
+                    }
+                )
             }
         }
+        Spacer(modifier = Modifier.weight(0.42f))
+    }
+}
+
+/** Тёмная «стеклянная» кнопка из макета: тонкая светлая обводка, значок и крупный текст. */
+@Composable
+private fun MockupButton(
+    icon: Int,
+    label: String,
+    textSize: androidx.compose.ui.unit.TextUnit,
+    iconSize: androidx.compose.ui.unit.Dp,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    bold: Boolean = false,
+    enabled: Boolean = true,
+) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = modifier
+            .clip(shape)
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.10f), Color.White.copy(alpha = 0.02f))
+                )
+            )
+            .border(
+                1.dp,
+                Brush.verticalGradient(
+                    listOf(Color.White.copy(alpha = 0.55f), Color.White.copy(alpha = 0.12f))
+                ),
+                shape
+            )
+            .clickable(enabled = enabled, onClick = onClick)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(iconSize)
+        )
+        Text(
+            modifier = Modifier.padding(start = 12.dp),
+            text = label,
+            color = Color.White,
+            fontSize = textSize,
+            fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
+            maxLines = 1
+        )
     }
 }
 

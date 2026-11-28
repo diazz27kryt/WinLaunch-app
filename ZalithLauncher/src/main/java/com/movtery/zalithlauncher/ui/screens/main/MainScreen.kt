@@ -19,6 +19,17 @@
 package com.movtery.zalithlauncher.ui.screens.main
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import android.app.ActivityManager
+import android.content.Context
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import com.movtery.zalithlauncher.BuildConfig
+import com.movtery.zalithlauncher.ui.screens.content.FirstLoginMenu
+import kotlinx.coroutines.delay
+import java.util.Locale
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
@@ -171,133 +182,276 @@ fun MainScreen(
         backgroundColor().copy(alpha = launcherBackgroundOpacity)
     } else backgroundColor()
 
+    val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
+    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
+    val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
+    val inAccountsScreen = mainScreenKey is NormalNavKey.AccountManager
+    val downloadChild = (mainScreenKey as? BackStackNavKey<*>)?.currentKey
+    val sidebarTab = when {
+        inLauncherScreen -> SidebarTab.HOME
+        inSettingsScreen -> SidebarTab.SETTINGS
+        inAccountsScreen -> SidebarTab.ACCOUNTS
+        inDownloadScreen && downloadChild is NestedNavKey.DownloadModPack -> SidebarTab.BUILDS
+        inDownloadScreen && downloadChild is NestedNavKey.DownloadMod -> SidebarTab.MODS
+        inDownloadScreen -> SidebarTab.DOWNLOAD
+        else -> SidebarTab.NONE
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = backgroundColor,
         contentColor = onBackgroundColor()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            TopBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                mainScreenKey = mainScreenKey,
-                inLauncherScreen = inLauncherScreen,
-                taskRunning = taskRunning,
-                isTasksExpanded = isTaskMenuExpanded,
-                contentColor = onBackgroundColor(),
-                onScreenBack = {
-                    screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
-                },
-                toMainScreen = toMainScreen,
-                toSettingsScreen = {
-                    screenBackStackModel.mainScreen.removeAndNavigateTo(
-                        removes = screenBackStackModel.clearBeforeNavKeys,
-                        screenKey = screenBackStackModel.settingsScreen
-                    )
-                },
-                toDownloadScreen = {
-                    screenBackStackModel.navigateToDownload()
-                },
-                toMultiplayerScreen = {
-                    screenBackStackModel.mainScreen.removeAndNavigateTo(
-                        removes = screenBackStackModel.clearBeforeNavKeys,
-                        screenKey = NormalNavKey.Multiplayer
-                    )
-                },
-                openFileManager = {
-                    eventViewModel.sendEvent(
-                        EventViewModel.Event.OpenFileManager(
-                            rootPath = PathManager.DIR_FILES_EXTERNAL.absolutePath
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (!isBackgroundValid) {
+                Image(
+                    painter = painterResource(R.drawable.winlaunch_bg),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = if (inLauncherScreen) 0.30f else 0.74f))
+                )
+            }
+
+            Row(modifier = Modifier.fillMaxSize()) {
+                WinSidebar(
+                    modifier = Modifier.fillMaxHeight(),
+                    current = sidebarTab,
+                    inMultiplayer = inMultiplayerScreen,
+                    onSelect = { tab ->
+                        if (tab != sidebarTab) when (tab) {
+                            SidebarTab.HOME -> toMainScreen()
+                            SidebarTab.BUILDS -> screenBackStackModel.navigateToDownload(
+                                screenBackStackModel.downloadModPackScreen
+                            )
+                            SidebarTab.MODS -> screenBackStackModel.navigateToDownload(
+                                screenBackStackModel.downloadModScreen
+                            )
+                            SidebarTab.SETTINGS -> screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = screenBackStackModel.settingsScreen
+                            )
+                            SidebarTab.ACCOUNTS -> screenBackStackModel.mainScreen.navigateTo(
+                                screenKey = NormalNavKey.AccountManager(FirstLoginMenu.NONE)
+                            )
+                            SidebarTab.DOWNLOAD -> screenBackStackModel.navigateToDownload()
+                            SidebarTab.NONE -> Unit
+                        }
+                    },
+                    onMultiplayer = {
+                        if (!inMultiplayerScreen) {
+                            screenBackStackModel.mainScreen.removeAndNavigateTo(
+                                removes = screenBackStackModel.clearBeforeNavKeys,
+                                screenKey = NormalNavKey.Multiplayer
+                            )
+                        }
+                    },
+                    onFiles = {
+                        eventViewModel.sendEvent(
+                            EventViewModel.Event.OpenFileManager(
+                                rootPath = PathManager.DIR_FILES_EXTERNAL.absolutePath
+                            )
                         )
-                    )
-                },
-                changeExpandedState = {
-                    changeTasksExpandedState()
-                },
-            )
+                    }
+                )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-            ) {
-                NavStateHost(rootKey = screenBackStackModel.mainScreen) {
-                    NavigationUI(
-                        modifier = Modifier.fillMaxSize(),
-                        screenBackStackModel = screenBackStackModel,
-                        toMainScreen = toMainScreen,
-                        eventViewModel = eventViewModel,
-                        modpackImportViewModel = modpackImportViewModel,
-                        modifyVersionViewModel = modifyVersionViewModel,
-                        submitError = submitError
-                    )
-                }
-
-                TaskMenu(
-                    isExpanded = isTaskMenuExpanded,
+                Column(
                     modifier = Modifier
                         .fillMaxHeight()
-                        .fillMaxWidth(0.3f)
-                        .align(Alignment.CenterStart)
-                        .padding(all = 6.dp)
+                        .weight(1f)
                 ) {
-                    changeTasksExpandedState()
+                    ContentHeader(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(46.dp)
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        mainScreenKey = mainScreenKey,
+                        inLauncherScreen = inLauncherScreen,
+                        taskRunning = taskRunning,
+                        isTasksExpanded = isTaskMenuExpanded,
+                        contentColor = onBackgroundColor(),
+                        onScreenBack = {
+                            screenBackStackModel.mainScreen.backStack.removeFirstOrNull()
+                        },
+                        changeExpandedState = {
+                            changeTasksExpandedState()
+                        },
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                    ) {
+                        NavStateHost(rootKey = screenBackStackModel.mainScreen) {
+                            NavigationUI(
+                                modifier = Modifier.fillMaxSize(),
+                                screenBackStackModel = screenBackStackModel,
+                                toMainScreen = toMainScreen,
+                                eventViewModel = eventViewModel,
+                                modpackImportViewModel = modpackImportViewModel,
+                                modifyVersionViewModel = modifyVersionViewModel,
+                                submitError = submitError
+                            )
+                        }
+
+                        TaskMenu(
+                            isExpanded = isTaskMenuExpanded,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(0.4f)
+                                .align(Alignment.CenterStart)
+                                .padding(all = 6.dp)
+                        ) {
+                            changeTasksExpandedState()
+                        }
+                    }
                 }
             }
         }
     }
 }
 
+private enum class SidebarTab { HOME, BUILDS, MODS, SETTINGS, ACCOUNTS, DOWNLOAD, NONE }
+
+/** Левая панель навигации WinLaunch: логотип и основные разделы. */
 @Composable
-private fun <E: TitledNavKey> TopBar(
+private fun WinSidebar(
+    current: SidebarTab,
+    inMultiplayer: Boolean,
+    onSelect: (SidebarTab) -> Unit,
+    onMultiplayer: () -> Unit,
+    onFiles: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .width(118.dp)
+            .background(Color.Black.copy(alpha = 0.58f))
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 8.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.winlaunch_tile),
+            contentDescription = "WinLaunch",
+            modifier = Modifier
+                .size(58.dp)
+                .padding(bottom = 4.dp),
+            contentScale = ContentScale.Fit
+        )
+        SidebarItem(current == SidebarTab.HOME, R.drawable.ic_home_filled, "Главная") { onSelect(SidebarTab.HOME) }
+        SidebarItem(current == SidebarTab.BUILDS, R.drawable.ic_box, "Сборки") { onSelect(SidebarTab.BUILDS) }
+        SidebarItem(current == SidebarTab.MODS, R.drawable.ic_extension_outlined, "Моды") { onSelect(SidebarTab.MODS) }
+        SidebarItem(current == SidebarTab.SETTINGS, R.drawable.ic_settings_filled, "Настройки") { onSelect(SidebarTab.SETTINGS) }
+        SidebarItem(current == SidebarTab.ACCOUNTS, R.drawable.ic_group_filled, "Аккаунты") { onSelect(SidebarTab.ACCOUNTS) }
+        SidebarItem(current == SidebarTab.DOWNLOAD, R.drawable.ic_download_2_filled, "Скачать") { onSelect(SidebarTab.DOWNLOAD) }
+
+        Row(
+            modifier = Modifier.padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            SidebarMiniAction(inMultiplayer, R.drawable.ic_public, "Мультиплеер", onMultiplayer)
+            SidebarMiniAction(false, R.drawable.ic_folder_filled, "Файлы", onFiles)
+        }
+    }
+}
+
+@Composable
+private fun SidebarItem(
+    selected: Boolean,
+    icon: Int,
+    label: String,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(50)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(36.dp)
+            .clip(shape)
+            .background(
+                if (selected) Brush.horizontalGradient(listOf(Color(0xFFF6F7F9), Color(0xFFB4BBC6)))
+                else Brush.horizontalGradient(listOf(Color.White.copy(alpha = 0.06f), Color.White.copy(alpha = 0.02f)))
+            )
+            .border(1.dp, Color.White.copy(alpha = if (selected) 0.7f else 0.16f), shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(7.dp)
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = label,
+            tint = if (selected) Color(0xFF11151B) else Color.White,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            text = label,
+            color = if (selected) Color(0xFF11151B) else Color(0xFFC3C8D1),
+            fontSize = 11.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+private fun SidebarMiniAction(
+    selected: Boolean,
+    icon: Int,
+    description: String,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(12.dp)
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(shape)
+            .background(Color.White.copy(alpha = if (selected) 0.18f else 0.06f))
+            .border(1.dp, Color.White.copy(alpha = 0.16f), shape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = description,
+            tint = Color(0xFFE2E6EC),
+            modifier = Modifier.size(18.dp)
+        )
+    }
+}
+
+/** Верхняя полоса: назад и заголовок, кнопка задач и плашка с ОЗУ и версией. */
+@Composable
+private fun <E: TitledNavKey> ContentHeader(
     mainScreenKey: E?,
     inLauncherScreen: Boolean,
     taskRunning: Boolean,
     isTasksExpanded: Boolean,
-    modifier: Modifier = Modifier,
     contentColor: Color,
     onScreenBack: () -> Unit,
-    toMainScreen: () -> Unit,
-    toSettingsScreen: () -> Unit,
-    toDownloadScreen: () -> Unit,
-    toMultiplayerScreen: () -> Unit,
-    openFileManager: () -> Unit,
     changeExpandedState: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val inMultiplayerScreen = mainScreenKey is NormalNavKey.Multiplayer
-    val inDownloadScreen = mainScreenKey is NestedNavKey.Download
-    val inSettingsScreen = mainScreenKey is NestedNavKey.Settings
     val parentRes = mainScreenKey?.title
     val childRes = (mainScreenKey as? BackStackNavKey<*>)?.currentKey?.title
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Row(
-            modifier = modifier
-                .clip(RoundedCornerShape(18.dp))
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(
-                            Color(0xFF171B22),
-                            Color(0xFF101319),
-                            Color(0xFF171B22)
-                        )
-                    )
-                )
-                .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(18.dp))
-                .padding(horizontal = 8.dp, vertical = 3.dp),
+            modifier = modifier,
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (!inLauncherScreen) {
                 IconButton(
-                    onClick = {
-                        backDispatcher?.onBackPressed() ?: onScreenBack()
-                    }
+                    onClick = { backDispatcher?.onBackPressed() ?: onScreenBack() }
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_arrow_back),
@@ -305,57 +459,24 @@ private fun <E: TitledNavKey> TopBar(
                         tint = Color(0xFFE7EAF0)
                     )
                 }
-                IconButton(
-                    onClick = toMainScreen
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_home_filled),
-                        contentDescription = stringResource(R.string.generic_main_menu),
-                        tint = Color(0xFFB8C1CE)
-                    )
-                }
-            }
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
-            ) {
-                if (inLauncherScreen || parentRes == null) {
-                    Text(
-                        text = "WINLAUNCH",
-                        color = Color(0xFFF0F2F5),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp,
-                        maxLines = 1
-                    )
-                    Text(
-                        text = stringResource(R.string.unofficial_modified_version),
-                        color = Color(0xFF9AA5B4),
-                        fontSize = 8.sp,
-                        letterSpacing = 0.5.sp,
-                        maxLines = 1
-                    )
-                } else {
+                if (parentRes != null) {
                     val titleText = if (childRes != null) {
                         androidText(parentRes, androidText(" / "), childRes)
                     } else {
                         parentRes
                     }
                     AndroidStringText(
+                        modifier = Modifier.weight(1f),
                         text = titleText,
                         style = MaterialTheme.typography.titleSmall,
                         softWrap = false,
                         maxLines = 1
                     )
-                    Text(
-                        text = "WINLAUNCH CONTROL",
-                        color = Color(0xFF9AA5B4),
-                        fontSize = 8.sp,
-                        letterSpacing = 1.2.sp,
-                        maxLines = 1
-                    )
+                } else {
+                    Spacer(Modifier.weight(1f))
                 }
+            } else {
+                Spacer(Modifier.weight(1f))
             }
 
             AnimatedVisibility(
@@ -365,10 +486,10 @@ private fun <E: TitledNavKey> TopBar(
             ) {
                 Row(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White.copy(alpha = 0.055f))
+                        .clip(RoundedCornerShape(50))
+                        .background(Color.White.copy(alpha = 0.08f))
                         .clickable(onClick = changeExpandedState)
-                        .padding(horizontal = 8.dp, vertical = 7.dp),
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -386,100 +507,62 @@ private fun <E: TitledNavKey> TopBar(
                 }
             }
 
-            CompactIconAction(
-                painter = painterResource(R.drawable.ic_folder_filled),
-                description = "Файлы",
-                onClick = openFileManager
-            )
-
-            TopBarRailItem(
-                selected = inMultiplayerScreen,
-                painter = painterResource(R.drawable.ic_group_filled),
-                text = stringResource(R.string.terracotta),
-                onClick = { if (!inMultiplayerScreen) toMultiplayerScreen() }
-            )
-            TopBarRailItem(
-                selected = inDownloadScreen,
-                painter = painterResource(R.drawable.ic_download_2_filled),
-                text = stringResource(R.string.generic_download),
-                onClick = { if (!inDownloadScreen) toDownloadScreen() }
-            )
-            TopBarRailItem(
-                selected = inSettingsScreen,
-                painter = painterResource(R.drawable.ic_settings_filled),
-                text = stringResource(R.string.generic_setting),
-                onClick = { if (!inSettingsScreen) toSettingsScreen() }
-            )
+            if (inLauncherScreen) {
+                SystemPill()
+            }
         }
     }
 }
 
+/** Плашка «занято / всего ОЗУ устройства | версия лаунчера» как в макете. */
 @Composable
-private fun CompactIconAction(
-    painter: Painter,
-    description: String,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .clickable(onClick = onClick)
-            .padding(8.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painter,
-            contentDescription = description,
-            tint = Color(0xFFD8DEE8),
-            modifier = Modifier.size(20.dp)
-        )
+private fun SystemPill() {
+    val context = LocalContext.current
+    var memory by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        while (true) {
+            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            if (am != null) {
+                val info = ActivityManager.MemoryInfo()
+                am.getMemoryInfo(info)
+                val gb = 1024.0 * 1024.0 * 1024.0
+                memory = String.format(Locale.US, "%.1f / %.1f GB", (info.totalMem - info.availMem) / gb, info.totalMem / gb)
+            }
+            delay(3000)
+        }
     }
-}
-
-@Composable
-private fun TopBarRailItem(
-    selected: Boolean,
-    painter: Painter,
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-    textStyle: TextStyle = MaterialTheme.typography.labelMedium
-) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = RoundedCornerShape(50)
     Row(
-        modifier = modifier
+        modifier = Modifier
             .clip(shape)
-            .background(
-                if (selected) Color.White.copy(alpha = 0.13f)
-                else Color.Transparent
-            )
-            .border(
-                1.dp,
-                if (selected) Color.White.copy(alpha = 0.16f) else Color.Transparent,
-                shape
-            )
-            .clickable(onClick = onClick)
-            .padding(
-                horizontal = if (selected) 10.dp else 8.dp,
-                vertical = 8.dp
-            ),
+            .background(Color.Black.copy(alpha = 0.55f))
+            .border(1.dp, Color.White.copy(alpha = 0.25f), shape)
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(5.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(
-            painter = painter,
-            contentDescription = text,
-            tint = if (selected) Color.White else Color(0xFFB8C1CE),
-            modifier = Modifier.size(19.dp)
-        )
-        AnimatedVisibility(visible = selected) {
-            Text(
-                text = text,
-                style = textStyle,
-                color = Color.White,
-                maxLines = 1
-            )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = memory, color = Color(0xFFD6DAE1), fontSize = 10.sp, lineHeight = 11.sp, maxLines = 1)
+            Text(text = "ОЗУ", color = Color(0xFF9AA2AF), fontSize = 8.sp, lineHeight = 9.sp)
         }
+        Box(
+            Modifier
+                .width(1.dp)
+                .height(20.dp)
+                .background(Color.White.copy(alpha = 0.25f))
+        )
+        Icon(
+            painter = painterResource(R.drawable.ic_box),
+            contentDescription = null,
+            tint = Color(0xFFD6DAE1),
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            text = "v" + BuildConfig.VERSION_NAME.substringBefore('-'),
+            color = Color(0xFFD6DAE1),
+            fontSize = 10.sp,
+            maxLines = 1
+        )
     }
 }
 
