@@ -127,5 +127,7 @@
   "winvisuals.gui.desc.stats": "Q3 is full quality, Q0 is the lightest",
   "key.winvisuals.nightvision": "Night Vision",
   "winvisuals.gui.opt.nightvision": "Night Vision",
-  "winvisuals.gui.desc.nightvision": "Bright caves and nights (key N)"
+  "winvisuals.gui.desc.nightvision": "Bright caves and nights (key N)",
+  "winvisuals.gui.opt.island": "Island",
+  "winvisuals.gui.desc.island": "Top bar: WinVisuals, FPS, Moscow time, battery"
 }

@@ -127,5 +127,7 @@
   "winvisuals.gui.desc.stats": "Q3 — полное качество, Q0 — самое лёгкое",
   "key.winvisuals.nightvision": "Ночное зрение",
   "winvisuals.gui.opt.nightvision": "Ночное зрение",
-  "winvisuals.gui.desc.nightvision": "Светло в пещерах и ночью (клавиша N)"
+  "winvisuals.gui.desc.nightvision": "Светло в пещерах и ночью (клавиша N)",
+  "winvisuals.gui.opt.island": "Островок",
+  "winvisuals.gui.desc.island": "Сверху: WinVisuals, FPS, время по МСК и заряд"
 }

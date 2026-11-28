@@ -61,9 +61,12 @@ public class WinVisuals implements ClientModInitializer {
             PerfGovernor.frame();
             Minecraft client = Minecraft.getInstance();
             VisualsConfig cfg = VisualsConfig.get();
+            if (cfg.enabled && cfg.showIsland && client.player != null && client.screen == null) {
+                Island.render(gui, client);
+            }
             if (!cfg.enabled || !cfg.showFps || client.player == null || client.screen != null) return;
             String label = "FPS " + Math.round(PerfGovernor.fps()) + "  Q" + (PerfGovernor.MAX_LEVEL - PerfGovernor.level());
-            gui.drawString(client.font, label, 8, cfg.showHud ? 30 : 8, 0xFFE8ECF6, true);
+            gui.drawString(client.font, label, 8, cfg.showIsland ? 28 : (cfg.showHud ? 30 : 8), 0xFFE8ECF6, true);
         });
 
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {

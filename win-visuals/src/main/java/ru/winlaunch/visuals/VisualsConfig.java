@@ -30,6 +30,9 @@ public class VisualsConfig {
     /** Client-side Night Vision effect: caves and the night look like with a potion. */
     public boolean nightVision = false;
 
+    /** Island at the top centre: name, FPS, Moscow time, battery. */
+    public boolean showIsland = true;
+
     public boolean showHud = true;
     public boolean uiAnimations = true;
     public boolean compactUi = false;
