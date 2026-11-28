@@ -45,6 +45,8 @@ object WinLaunchPvPPack {
         Project("appleskin"),
         Project("mouse-tweaks"),
         Project("replaymod"),
+        // Aspect-ratio / screen scaling, display only. Skipped when it has no release for the game version.
+        Project("rescale"),
         // Required by the bundled Win Visuals mod.
         Project("fabric-api")
     )
