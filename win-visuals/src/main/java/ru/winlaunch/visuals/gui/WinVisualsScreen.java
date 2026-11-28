@@ -484,6 +484,7 @@ public class WinVisualsScreen extends Screen {
                 rows.add(toggle("cloud", "fog", () -> cfg.skyFog, v -> cfg.skyFog = v));
             }
             case "visuals" -> {
+                rows.add(toggle("sun", "nightvision", () -> cfg.nightVision, v -> cfg.nightVision = v));
                 rows.add(toggle("particles", "trails", () -> cfg.trails, v -> cfg.trails = v));
                 rows.add(toggle("bolt", "sprint", () -> cfg.trailOnlySprint, v -> cfg.trailOnlySprint = v));
                 rows.add(toggle("sparkle", "elytra", () -> cfg.trailElytra, v -> cfg.trailElytra = v));

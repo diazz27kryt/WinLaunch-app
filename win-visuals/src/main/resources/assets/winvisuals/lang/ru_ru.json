@@ -124,5 +124,8 @@
   "winvisuals.gui.opt.showfps": "Показывать FPS",
   "winvisuals.gui.desc.showfps": "FPS и уровень качества на экране",
   "winvisuals.gui.opt.stats": "Сейчас",
-  "winvisuals.gui.desc.stats": "Q3 — полное качество, Q0 — самое лёгкое"
+  "winvisuals.gui.desc.stats": "Q3 — полное качество, Q0 — самое лёгкое",
+  "key.winvisuals.nightvision": "Ночное зрение",
+  "winvisuals.gui.opt.nightvision": "Ночное зрение",
+  "winvisuals.gui.desc.nightvision": "Светло в пещерах и ночью (клавиша N)"
 }
