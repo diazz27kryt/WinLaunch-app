@@ -52,6 +52,16 @@ public class WinVisuals implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
 
+        // Frame counter for the adaptive quality control, plus the optional FPS label.
+        HudRenderCallback.EVENT.register((gui, tickDelta) -> {
+            PerfGovernor.frame();
+            Minecraft client = Minecraft.getInstance();
+            VisualsConfig cfg = VisualsConfig.get();
+            if (!cfg.enabled || !cfg.showFps || client.player == null || client.screen != null) return;
+            String label = "FPS " + Math.round(PerfGovernor.fps()) + "  Q" + (PerfGovernor.MAX_LEVEL - PerfGovernor.level());
+            gui.drawString(client.font, label, 8, cfg.showHud ? 30 : 8, 0xFFE8ECF6, true);
+        });
+
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
             if (renderer instanceof AvatarRenderer<?> avatar) {
                 helper.register(new CosmeticsLayer(avatar));
@@ -100,9 +110,11 @@ public class WinVisuals implements ClientModInitializer {
             states.clear();
             CombatTracker.clear();
             KillEffects.clear();
+            PerfGovernor.reset();
             return;
         }
         VisualsConfig cfg = VisualsConfig.get();
+        GameTuner.tickOnce(mc, cfg);
         if (!cfg.enabled || mc.isPaused()) return;
 
         CombatTracker.tick(mc, level, cfg);

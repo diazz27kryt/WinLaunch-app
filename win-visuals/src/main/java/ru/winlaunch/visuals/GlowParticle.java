@@ -33,6 +33,7 @@ public final class GlowParticle extends SingleQuadParticle {
     private final float baseAlpha;
     private final float spin;
     private final float phase;
+    private boolean counted = true;
 
     private GlowParticle(ClientLevel level, Shape shape, TextureAtlasSprite sprite, double x, double y, double z,
                          int rgb, float size, int life, float alpha) {
@@ -60,6 +61,8 @@ public final class GlowParticle extends SingleQuadParticle {
     /** Spawns one particle. {@code size} is half of the quad width in blocks. */
     public static void spawn(ClientLevel level, Shape shape, double x, double y, double z,
                              double vx, double vy, double vz, int rgb, float size, int life, float alpha) {
+        // Rings are few and cheap; everything else is thinned out when the game is struggling.
+        if (shape != Shape.RING && !PerfGovernor.allowParticle(level.random)) return;
         Minecraft mc = Minecraft.getInstance();
         TextureAtlasSprite sprite = mc.getAtlasManager().getAtlasOrThrow(AtlasIds.PARTICLES).getSprite(shape.id);
         GlowParticle particle = new GlowParticle(level, shape, sprite, x, y, z, rgb, size, life, alpha);
@@ -67,11 +70,16 @@ public final class GlowParticle extends SingleQuadParticle {
         particle.yd = vy;
         particle.zd = vz;
         mc.particleEngine.add(particle);
+        PerfGovernor.particleSpawned();
     }
 
     @Override
     public void tick() {
         super.tick();
+        if (counted && !isAlive()) {
+            counted = false;
+            PerfGovernor.particleRemoved();
+        }
         oRoll = roll;
         roll += spin;
         float left = 1f - (float) age / lifetime;

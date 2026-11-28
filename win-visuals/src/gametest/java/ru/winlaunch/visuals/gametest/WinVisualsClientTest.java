@@ -68,6 +68,8 @@ public class WinVisualsClientTest implements FabricClientGameTest {
 
             VisualsConfig cfg = VisualsConfig.get();
             cfg.enabled = true;
+            // CI renders in software, so the adaptive control would only degrade the screenshots.
+            cfg.perfMode = VisualsConfig.PerfMode.OFF;
             cfg.auroraSky = true;
             cfg.skyStars = true;
             cfg.skyNebula = true;
@@ -90,7 +92,7 @@ public class WinVisualsClientTest implements FabricClientGameTest {
             }
             context.waitTicks(30);
             shot(context, "wv_gui_0");
-            for (int tab = 1; tab < 7; tab++) {
+            for (int tab = 1; tab < 8; tab++) {
                 final int t = tab;
                 context.runOnClient(client -> ((WinVisualsScreen) client.screen).selectTab(t));
                 context.waitTicks(10);

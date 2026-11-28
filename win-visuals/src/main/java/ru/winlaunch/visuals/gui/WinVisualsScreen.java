@@ -9,7 +9,9 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import ru.winlaunch.visuals.GameTuner;
 import ru.winlaunch.visuals.KillEffects;
+import ru.winlaunch.visuals.PerfGovernor;
 import ru.winlaunch.visuals.VisualsConfig;
 import ru.winlaunch.visuals.VisualsConfig.ColorMode;
 import ru.winlaunch.visuals.VisualsConfig.KillMode;
@@ -44,8 +46,8 @@ public class WinVisualsScreen extends Screen {
     private static final int TEXT = 0xFFF5F5F7;
     private static final int TEXT_DIM = 0xFF8E8E96;
 
-    private static final String[] TABS = {"sky", "visuals", "combat", "particles", "cosmetics", "interface", "settings"};
-    private static final String[] TAB_ICONS = {"moon", "sparkle", "burst", "particles", "star", "monitor", "gear"};
+    private static final String[] TABS = {"sky", "visuals", "combat", "particles", "cosmetics", "interface", "performance", "settings"};
+    private static final String[] TAB_ICONS = {"moon", "sparkle", "burst", "particles", "star", "monitor", "bolt", "gear"};
     private static final int[] PRESETS = {
         0xFFFFFF, 0xC8C8CE, 0xFF8FB8, 0xFF5C8A, 0xB48CFF, 0x6FB8FF, 0x5CF2C0, 0xFFD86B
     };
@@ -187,12 +189,12 @@ public class WinVisualsScreen extends Screen {
         for (int i = 0; i < TABS.length; i++) {
             int ty = navY(i);
             boolean sel = i == tab;
-            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 15);
-            panel(g, FILL, sx + 6, ty, sw - 12, 15, 6,
+            boolean hov = inside(mx, my, sx + 6, ty, sw - 12, 13);
+            panel(g, FILL, sx + 6, ty, sw - 12, 13, 6,
                 a(sel ? 0x38FFFFFF : (hov ? 0x1CFFFFFF : 0x66000000), ease));
-            panel(g, STROKE, sx + 6, ty, sw - 12, 15, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
-            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 2, 11, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
-            text(g, t("tab." + TABS[i]), sx + 30, ty + 4, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
+            panel(g, STROKE, sx + 6, ty, sw - 12, 13, 6, a(sel ? 0xE6FFFFFF : (hov ? 0x66FFFFFF : 0x33FFFFFF), ease));
+            icon(g, tex("icon_" + TAB_ICONS[i]), sx + 13, ty + 1, 11, sel ? 0xFFFFFFFF : 0xFFB4B4BC, ease);
+            text(g, t("tab." + TABS[i]), sx + 30, ty + 3, a(sel ? TEXT : 0xFFC4C4CA, ease), 1f, false);
         }
 
         // footer card
@@ -205,7 +207,7 @@ public class WinVisualsScreen extends Screen {
     }
 
     private int navY(int i) {
-        return py + 82 + i * 16;
+        return py + 80 + i * 14;
     }
 
     private void renderHeader(GuiGraphics g, double mx, double my, float ease) {
@@ -377,7 +379,7 @@ public class WinVisualsScreen extends Screen {
         if (collapsed) return true;
 
         for (int i = 0; i < TABS.length; i++) {
-            if (inside(mx, my, px + 10, navY(i), SW - 16, 15)) {
+            if (inside(mx, my, px + 10, navY(i), SW - 16, 13)) {
                 selectTab(i);
                 return true;
             }
@@ -522,6 +524,24 @@ public class WinVisualsScreen extends Screen {
                 rows.add(slider("expand", "scale", 0.75f, 1.5f, 0.05f, () -> cfg.uiScale, v -> cfg.uiScale = v, Fmt.PERCENT));
                 rows.add(slider("moon", "dim", 0.2f, 0.9f, 0.05f, () -> cfg.backgroundDim, v -> cfg.backgroundDim = v, Fmt.PERCENT));
                 rows.add(toggle("users", "others", () -> cfg.showOthers, v -> cfg.showOthers = v));
+            }
+            case "performance" -> {
+                rows.add(action("bolt", "perfmode", t("perf." + cfg.perfMode.name().toLowerCase()), () -> {
+                    VisualsConfig.PerfMode[] all = VisualsConfig.PerfMode.values();
+                    cfg.perfMode = all[(cfg.perfMode.ordinal() + 1) % all.length];
+                    cfg.perfProfileApplied = 0;
+                    cfg.save();
+                    buildTab();
+                }));
+                rows.add(slider("monitor", "targetfps", 30, 144, 5, () -> (float) cfg.targetFps, v -> cfg.targetFps = Math.round(v), Fmt.INT));
+                rows.add(toggle("gear", "tune", () -> cfg.tuneGameSettings, v -> cfg.tuneGameSettings = v));
+                rows.add(action("refresh", "applynow", t("do.apply"), () -> {
+                    net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+                    GameTuner.apply(mc, cfg);
+                    flashUntil = System.currentTimeMillis() + 500;
+                }));
+                rows.add(toggle("users", "showfps", () -> cfg.showFps, v -> cfg.showFps = v));
+                rows.add(info("cube", "stats", Math.round(PerfGovernor.fps()) + " FPS, Q" + (PerfGovernor.MAX_LEVEL - PerfGovernor.level())));
             }
             case "settings" -> {
                 rows.add(toggle("gear", "enabled", () -> cfg.enabled, v -> cfg.enabled = v));
