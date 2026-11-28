@@ -124,5 +124,8 @@
   "winvisuals.gui.opt.showfps": "Show FPS",
   "winvisuals.gui.desc.showfps": "FPS and quality level on screen",
   "winvisuals.gui.opt.stats": "Now",
-  "winvisuals.gui.desc.stats": "Q3 is full quality, Q0 is the lightest"
+  "winvisuals.gui.desc.stats": "Q3 is full quality, Q0 is the lightest",
+  "key.winvisuals.nightvision": "Night Vision",
+  "winvisuals.gui.opt.nightvision": "Night Vision",
+  "winvisuals.gui.desc.nightvision": "Bright caves and nights (key N)"
 }

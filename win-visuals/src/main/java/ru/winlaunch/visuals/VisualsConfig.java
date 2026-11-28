@@ -27,6 +27,9 @@ public class VisualsConfig {
     public float skyIntensity = 1.0f;
 
 
+    /** Client-side Night Vision effect: caves and the night look like with a potion. */
+    public boolean nightVision = false;
+
     public boolean showHud = true;
     public boolean uiAnimations = true;
     public boolean compactUi = false;

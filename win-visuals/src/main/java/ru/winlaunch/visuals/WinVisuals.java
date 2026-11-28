@@ -28,6 +28,7 @@ public class WinVisuals implements ClientModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger("winvisuals");
 
     private static KeyMapping openKey;
+    private static KeyMapping nightKey;
 
     public static KeyMapping openKey() {
         return openKey;
@@ -47,8 +48,11 @@ public class WinVisuals implements ClientModInitializer {
     public void onInitializeClient() {
         VisualsConfig.get();
 
+        KeyMapping.Category category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("winvisuals", "main"));
         openKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
-            "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, KeyMapping.Category.register(Identifier.fromNamespaceAndPath("winvisuals", "main"))));
+            "key.winvisuals.open", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, category));
+        nightKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+            "key.winvisuals.nightvision", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_N, category));
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
 
@@ -105,6 +109,14 @@ public class WinVisuals implements ClientModInitializer {
             }
         }
 
+        while (nightKey.consumeClick()) {
+            if (mc.screen == null && mc.player != null) {
+                VisualsConfig c = VisualsConfig.get();
+                c.nightVision = !c.nightVision;
+                c.save();
+            }
+        }
+
         ClientLevel level = mc.level;
         if (level == null || mc.player == null) {
             states.clear();
@@ -115,6 +127,7 @@ public class WinVisuals implements ClientModInitializer {
         }
         VisualsConfig cfg = VisualsConfig.get();
         GameTuner.tickOnce(mc, cfg);
+        NightVision.tick(mc, cfg);
         if (!cfg.enabled || mc.isPaused()) return;
 
         CombatTracker.tick(mc, level, cfg);
