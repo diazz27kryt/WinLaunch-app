@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ru.winlaunch.visuals.AuroraSkyRenderer;
+import ru.winlaunch.visuals.PerfGovernor;
 import ru.winlaunch.visuals.VisualsConfig;
 
 /** Draws the Win Visuals night sky inside the 1.21.11 sky render pass. */
@@ -19,7 +20,7 @@ public abstract class SkyRendererMixin {
                                     float starAngle, MoonPhase moonPhase, float rainBrightness,
                                     float starBrightness, CallbackInfo ci) {
         VisualsConfig cfg = VisualsConfig.get();
-        if (!cfg.enabled) return;
+        if (!cfg.enabled || PerfGovernor.skyDisabled()) return;
         AuroraSkyRenderer.render(poseStack.last().pose(), starAngle);
     }
 
@@ -27,6 +28,6 @@ public abstract class SkyRendererMixin {
     @Inject(method = "renderStars", at = @At("HEAD"), cancellable = true)
     private void winvisuals$skipVanillaStars(float brightness, PoseStack poseStack, CallbackInfo ci) {
         VisualsConfig cfg = VisualsConfig.get();
-        if (cfg.enabled && cfg.skyStars) ci.cancel();
+        if (cfg.enabled && cfg.skyStars && !PerfGovernor.skyDisabled()) ci.cancel();
     }
 }

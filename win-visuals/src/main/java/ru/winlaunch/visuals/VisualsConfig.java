@@ -67,6 +67,19 @@ public class VisualsConfig {
 
     public enum KillMode { SHAHED, FREEZE, SINGULARITY, DUEL, EXPLOSION }
 
+    /** OFF = no limits, AUTO = lowers the mod's cost when FPS drops, MAX = lightest sky and fewest particles. */
+    public enum PerfMode { OFF, AUTO, MAX }
+
+    public PerfMode perfMode = PerfMode.AUTO;
+    /** FPS the adaptive control tries to hold. */
+    public int targetFps = 60;
+    /** Apply a light graphics profile (render distance etc.) once. */
+    public boolean tuneGameSettings = true;
+    /** Version of the graphics profile that was already applied; 0 = not yet. */
+    public int perfProfileApplied = 0;
+    /** Small FPS and quality-level label on the screen. */
+    public boolean showFps = false;
+
     /** Glowing marker and a health card for the current target. Off by default (fair-play pack). */
     public boolean targetEsp = false;
     public boolean targetHud = false;
@@ -110,6 +123,8 @@ public class VisualsConfig {
     private void sanitize() {
         if (colorMode == null) colorMode = ColorMode.RAINBOW;
         if (killMode == null) killMode = KillMode.EXPLOSION;
+        if (perfMode == null) perfMode = PerfMode.AUTO;
+        targetFps = Math.max(20, Math.min(targetFps, 240));
         if (color == null || !color.matches("(?i)#?[0-9a-f]{6}")) color = "55AAFF";
         trailDensity = Math.max(0, Math.min(trailDensity, 10));
         hitParticles = Math.max(0, Math.min(hitParticles, 80));

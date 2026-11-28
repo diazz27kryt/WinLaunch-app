@@ -42,6 +42,12 @@ public final class AuroraSkyRenderer {
         .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
         .build();
 
+    // Reused every frame so the sky does not create garbage 60+ times a second.
+    private static final Vector4f PARAMS = new Vector4f();
+    private static final Vector3f EXTRA = new Vector3f();
+    private static final Matrix4f MODEL_VIEW = new Matrix4f();
+    private static final Matrix4f TEXTURE = new Matrix4f();
+
     private static GpuBuffer domeBuffer;
     private static int domeIndexCount;
 
@@ -54,17 +60,15 @@ public final class AuroraSkyRenderer {
 
         float intensity = Math.max(0.1f, Math.min(2.0f, cfg.skyIntensity));
         float time = (System.nanoTime() - START_NANOS) / 1.0e9f;
-        Vector4f params = new Vector4f(
-            time,
-            cfg.auroraSky ? intensity : 0f,
-            cfg.skyNebula ? intensity : 0f,
-            cfg.skyStars ? 1f : 0f
-        );
-        Vector3f extra = new Vector3f(cfg.skyFog ? 1f : 0f, starAngle, 1f);
+        // The shader cost is almost all in the nebula and aurora, so the governor drops those first.
+        boolean aurora = cfg.auroraSky && PerfGovernor.auroraAllowed();
+        boolean nebula = cfg.skyNebula && PerfGovernor.nebulaAllowed();
+        PARAMS.set(time, aurora ? intensity : 0f, nebula ? intensity : 0f, cfg.skyStars ? 1f : 0f);
+        EXTRA.set(cfg.skyFog ? 1f : 0f, starAngle, 1f);
 
-        Matrix4f modelView = new Matrix4f(RenderSystem.getModelViewMatrix()).mul(pose);
+        MODEL_VIEW.set(RenderSystem.getModelViewMatrix()).mul(pose);
         GpuBufferSlice transforms = RenderSystem.getDynamicUniforms()
-            .writeTransform(modelView, params, extra, new Matrix4f());
+            .writeTransform(MODEL_VIEW, PARAMS, EXTRA, TEXTURE.identity());
 
         Minecraft client = Minecraft.getInstance();
         GpuTextureView color = client.getMainRenderTarget().getColorTextureView();
