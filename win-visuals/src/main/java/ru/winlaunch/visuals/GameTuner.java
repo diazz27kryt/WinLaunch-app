@@ -2,7 +2,7 @@ package ru.winlaunch.visuals;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.ParticleStatus;
+import net.minecraft.server.level.ParticleStatus;
 import ru.winlaunch.visuals.VisualsConfig.PerfMode;
 
 /**
