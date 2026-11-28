@@ -1,6 +1,6 @@
 /*
  * WinLaunch PvP Pack builder.
- * A fair-play client pack: performance, recording and everyday QoL only.
+ * A fair-play client pack: performance and everyday QoL only.
  * No combat automation, reach changes, x-ray, packet manipulation or PvP helper HUDs.
  */
 package com.movtery.zalithlauncher.game.download.modpack.optimization
@@ -30,7 +30,7 @@ object WinLaunchPvPPack {
 
     private data class Project(val slug: String, val required: Boolean = false)
 
-    // Performance + general QoL/recording only. Deliberately excludes combat helpers,
+    // Performance + general QoL only. Deliberately excludes combat helpers,
     // inventory/armor advantage HUDs, auto-clickers, macros and reach modifications.
     private val projects = listOf(
         Project("sodium", required = true),
@@ -44,9 +44,6 @@ object WinLaunchPvPPack {
         Project("sodium-extra"),
         Project("appleskin"),
         Project("mouse-tweaks"),
-        Project("replaymod"),
-        // Aspect-ratio / screen scaling, display only. Skipped when it has no release for the game version.
-        Project("rescale"),
         // Required by the bundled Win Visuals mod.
         Project("fabric-api")
     )
@@ -115,7 +112,7 @@ object WinLaunchPvPPack {
             addProperty("name", "WinLaunch PvP Pack $gameVersion")
             addProperty(
                 "summary",
-                "Fair-play Fabric pack: performance, visual settings, inventory QoL and replay recording. No combat automation or PvP helper HUDs."
+                "Fair-play Fabric pack: performance, visual settings, and inventory QoL. No combat automation or PvP helper HUDs."
             )
             add("files", files)
             add("dependencies", JsonObject().apply {
