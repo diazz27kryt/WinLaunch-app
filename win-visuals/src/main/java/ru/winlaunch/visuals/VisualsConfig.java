@@ -67,9 +67,9 @@ public class VisualsConfig {
 
     public enum KillMode { SHAHED, FREEZE, SINGULARITY, DUEL, EXPLOSION }
 
-    /** Glowing marker and a health card for the current target. */
-    public boolean targetEsp = true;
-    public boolean targetHud = true;
+    /** Glowing marker and a health card for the current target. Off by default (fair-play pack). */
+    public boolean targetEsp = false;
+    public boolean targetHud = false;
 
     /** Animated effect where an entity you hit has died. */
     public boolean killEffects = true;
