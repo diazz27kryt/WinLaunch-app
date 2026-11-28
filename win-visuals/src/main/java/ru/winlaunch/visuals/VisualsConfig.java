@@ -65,6 +65,21 @@ public class VisualsConfig {
     public boolean landingEffects = true;
     public int landingParticles = 18;
 
+    public enum KillMode { SHAHED, FREEZE, SINGULARITY, DUEL, EXPLOSION }
+
+    /** Glowing marker and a health card for the current target. */
+    public boolean targetEsp = true;
+    public boolean targetHud = true;
+
+    /** Animated effect where an entity you hit has died. */
+    public boolean killEffects = true;
+    public KillMode killMode = KillMode.EXPLOSION;
+    public boolean killSound = true;
+    /** Only play the kill effect for players, not for mobs. */
+    public boolean killOnlyPlayers = false;
+    /** Use the particle colour from the menu instead of the natural colours of each effect. */
+    public boolean killThemeColor = false;
+
     private static VisualsConfig instance;
 
     public static VisualsConfig get() {
@@ -94,6 +109,7 @@ public class VisualsConfig {
 
     private void sanitize() {
         if (colorMode == null) colorMode = ColorMode.RAINBOW;
+        if (killMode == null) killMode = KillMode.EXPLOSION;
         if (color == null || !color.matches("(?i)#?[0-9a-f]{6}")) color = "55AAFF";
         trailDensity = Math.max(0, Math.min(trailDensity, 10));
         hitParticles = Math.max(0, Math.min(hitParticles, 80));

@@ -68,12 +68,21 @@ public class WinVisuals implements ClientModInitializer {
             gui.drawString(client.font, "WIN VISUALS", 16, 14, 0xFFE8ECF6, false);
         });
 
+        HudRenderCallback.EVENT.register((gui, tickDelta) -> {
+            Minecraft client = Minecraft.getInstance();
+            VisualsConfig cfg = VisualsConfig.get();
+            if (!cfg.enabled || client.player == null || client.screen != null) return;
+            CombatTracker.renderHud(gui, client, cfg);
+        });
+
         AttackEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             VisualsConfig cfg = VisualsConfig.get();
             Minecraft mc = Minecraft.getInstance();
-            if (cfg.enabled && cfg.hitEffects && world.isClientSide() && player == mc.player
-                && world instanceof ClientLevel level) {
-                Effects.hit(level, entity);
+            if (cfg.enabled && world.isClientSide() && player == mc.player && world instanceof ClientLevel level) {
+                if (cfg.hitEffects) {
+                    Effects.hit(level, entity);
+                }
+                CombatTracker.onAttack(level, entity);
             }
             return InteractionResult.PASS;
         });
@@ -89,10 +98,15 @@ public class WinVisuals implements ClientModInitializer {
         ClientLevel level = mc.level;
         if (level == null || mc.player == null) {
             states.clear();
+            CombatTracker.clear();
+            KillEffects.clear();
             return;
         }
         VisualsConfig cfg = VisualsConfig.get();
         if (!cfg.enabled || mc.isPaused()) return;
+
+        CombatTracker.tick(mc, level, cfg);
+        KillEffects.tick(level);
 
         for (Player p : level.players()) {
             if (p != mc.player && !cfg.showOthers) continue;
